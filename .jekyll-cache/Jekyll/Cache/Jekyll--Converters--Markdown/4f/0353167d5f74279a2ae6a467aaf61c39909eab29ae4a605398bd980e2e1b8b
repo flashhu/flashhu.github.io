@@ -1,0 +1,89 @@
+I"D<h3 id="1创建-github-仓库">1.创建 GitHub 仓库</h3>
+
+<p><img src="https://img-blog.csdnimg.cn/20200219191042399.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NTM3NDE0,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述" /></p>
+
+<hr />
+
+<h3 id="2安装-jekyll">2.安装 Jekyll</h3>
+
+<p>参考文档：https://jekyllrb.com/docs/installation/windows/</p>
+
+<ul>
+  <li>下载 RubyInstaller 时，如速度很慢很慢，可以考虑尝试打开 科学 上网工具</li>
+  <li><a href="https://www.iteye.com/blog/sunxboy-2217811">Could not find a valid gem ‘jekyll’</a></li>
+  <li><a href="https://segmentfault.com/q/1010000005914910">Error fetching http://ruby.taobao.org/</a>
+<a href="https://blog.csdn.net/w2i0l1l5y/article/details/82662224">Error fetching https://gems.ruby-china.org/</a></li>
+</ul>
+
+<p>以上<strong>三个报错的解决办法</strong>为 -&gt; 换为国内的源</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>//更换源
+gem sources --remove https://rubygems.org/
+gem sources -a https://gems.ruby-china.com/
+
+gem sources -l
+//显示以下内容 为换源成功
+*** CURRENT SOURCES ***
+https://gems.ruby-china.com/
+
+//开始安装....
+gem install jekyll bundler
+</code></pre></div></div>
+
+<p><img src="https://img-blog.csdnimg.cn/20200219204210408.png" alt="在这里插入图片描述" /></p>
+
+<hr />
+
+<h3 id="3参考主题-修改样式">3.参考主题 修改样式</h3>
+
+<p><strong>仓库推荐</strong></p>
+
+<p>1.<a href="https://github.com/Huxpro/huxpro.github.io">huxpro.github.io</a><br />
+<a href="https://github.com/Huxpro/huxpro.github.io/blob/master/README.zh.md">中文文档链接</a><br />
+另一个修改了模板仓库的<a href="https://github.com/jsksxs360/xs-huxblog/blob/master/Document.md#install-jekyll">说明</a>，建议结合使用
+<a href="http://huangxuan.me/huxblog-boilerplate/">效果预览</a></p>
+
+<p>2.<a href="https://github.com/cnfeat/blog.io">blog.io</a>
+文档见 readme 链接<br />
+<a href="https://www.cnfeat.com/">效果预览</a></p>
+
+<p>本文选择了第一个仓库链接作为博客模板</p>
+
+<p><strong>步骤罗列</strong>
+1.文件 clone 到本地
+<code class="highlighter-rouge">git clone git@github.com:Huxpro/huxblog-boilerplate.git</code></p>
+
+<ol>
+  <li>将自己的仓库 clone 到本地
+<code class="highlighter-rouge">git clone https://github.com/用户名/用户名.github.io.git</code>
+3.将 huxblog-boilerplate 中的内容 复制到 用户名.github.io 文件夹中
+4.根据仓库的文档，修改<code class="highlighter-rouge">_config.yml</code>
+5.修改其他页面，如 <code class="highlighter-rouge">index.html</code> , <code class="highlighter-rouge">about.html</code>, <code class="highlighter-rouge">tag.html</code>
+注意修改的不是文件夹 <code class="highlighter-rouge">_site</code> 中页面</li>
+</ol>
+
+<p><img src="https://img-blog.csdnimg.cn/2020022010360032.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NTM3NDE0,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述" />
+6.将文件上传到远程仓库中
+在 用户名.github.io 文件夹 下打开 git</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git add .    //添加所有文件到版本库
+git commit -m "some msg" //提交修改
+git push -u origin master //将本地仓库push到github上
+</code></pre></div></div>
+
+<p>7.打开 用户名.github.io 网页</p>
+
+<p><strong>可能有的疑问</strong></p>
+
+<ul>
+  <li>网页中的标签是根据 <code class="highlighter-rouge">_post</code> 文件夹中文件里的 <code class="highlighter-rouge">tag</code> 显示的，不用纠结于修改</li>
+  <li>仓库上传后，用户名.github.io 网页 404
+<img src="https://img-blog.csdnimg.cn/20200220105534332.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NTM3NDE0,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述" />
+根据提示，最简单粗暴的办法是 删除文件 <code class="highlighter-rouge">README.zh.md</code></li>
+  <li>打开页面，样式无法正常渲染，控制台报错找不到文件
+<code class="highlighter-rouge">Failed to load resource: the server responded with a status of 404 ()</code>
+<code class="highlighter-rouge">GET ... net::ERR_ABORTED 404</code>
+对比原仓库文件，检查<code class="highlighter-rouge">_config.yml</code>中关于路径的设置</li>
+  <li>模板文件为 <code class="highlighter-rouge">_layouts</code>文件夹下的`default.html</li>
+</ul>
+:ET

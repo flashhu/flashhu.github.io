@@ -1,0 +1,430 @@
+I"^<h4 id="基本概念">基本概念</h4>
+
+<ul>
+  <li>类存于源文件里，方法存于类中，语句存于方法中</li>
+  <li>Java中的integer与boolean两种类型并不相容</li>
+</ul>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//错误示范</span>
+<span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+<span class="k">while</span> <span class="o">(</span><span class="n">x</span><span class="o">)</span> <span class="o">{</span> <span class="o">}</span>
+
+<span class="c1">//正确示范</span>
+<span class="kt">boolean</span> <span class="n">isHot</span> <span class="o">=</span> <span class="kc">true</span>
+<span class="nf">while</span> <span class="o">(</span><span class="n">isHot</span><span class="o">)</span> <span class="o">{</span> <span class="o">}</span>
+</code></pre></div></div>
+
+<hr />
+
+<h4 id="类与对象">类与对象</h4>
+
+<ul>
+  <li>覆盖的意思是由子类重新定义继承下来的方法，以改变或延伸此方法的行为</li>
+  <li>对象是靠类的模型塑造出来的；类是对象的蓝图</li>
+  <li>
+    <p>对象本身已知的事物被称为实例变量；对象可以执行的动作称为方法</p>
+  </li>
+  <li>面向对象的应用程序中，<code class="highlighter-rouge">main( )</code>的两种用途为测试真正的类，启动Java应用程序</li>
+  <li>当对象被创建时，它会被存放在堆的内存区域中（可回收）。Java会根据对象的大小分配空间</li>
+  <li>任何变量只要加上public、static、和final，基本上都会变成全局变量取用的常数</li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th>名词</th>
+      <th>描述</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>类</td>
+      <td>由<code class="highlighter-rouge">.java</code>文件编译出来；功能类似模板；能申明方法<br />有很多方法；拥有很多行为；被用来创建对象实例；</td>
+    </tr>
+    <tr>
+      <td>对象</td>
+      <td>实例变量值可以与其他兄弟姐妹不同；执行工作；有很多方法；有很多行为；生存于堆上；状态可以改变；可以在运行期变化</td>
+    </tr>
+    <tr>
+      <td>方法</td>
+      <td>执行工作；待在对象中</td>
+    </tr>
+    <tr>
+      <td>实例变量</td>
+      <td>代表“状态”；待在对象中；状态可以改变；可以在运行期中变化</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h4 id="primitive主数据类型和引用">primitive主数据类型和引用</h4>
+
+<ul>
+  <li>变量必须拥有类型和名称</li>
+  <li>boolean类型的位数由 Java虚拟机决定</li>
+  <li><code class="highlighter-rouge">primitive</code> 主数据类型包括：<code class="highlighter-rouge">boolean</code>, <code class="highlighter-rouge">char</code>, <code class="highlighter-rouge">byte</code>, <code class="highlighter-rouge">short</code>, <code class="highlighter-rouge">int</code>, <code class="highlighter-rouge">long</code>, <code class="highlighter-rouge">float</code>, <code class="highlighter-rouge">double</code></li>
+  <li><code class="highlighter-rouge">primitive</code>主数据类型变量是以字节来代表实际的变量值；对象引用变量是以字节来表示取得对象的方法</li>
+  <li>创建对象实例时，对象本身并没有放进变量中。对引用变量来说，变量值是取得特定对象的位表示法</li>
+  <li>对于任意一个 Java 虚拟机来说，所有的引用大小都一样，但不同的 Java 虚拟机间可能会以不同的方式来表示引用</li>
+  <li>在 Java 中，不可以对引用变量进行运算</li>
+  <li>数组是个对象，不管里面放的是不是 <code class="highlighter-rouge">primitive</code> 主数据类型</li>
+  <li>没有引用到任何对象的引用变量的值为 <code class="highlighter-rouge">null</code> 值</li>
+</ul>
+
+<hr />
+
+<h4 id="方法操作实例变量">方法操作实例变量</h4>
+
+<ul>
+  <li>任一类的每个实例都带有相同的方法，但是方法可以根据实例变量的值来表现不同的行为</li>
+  <li>方法会运用形参，调用的一方会传入实参。实参是传给方法的值，当它传入方法后，就成了形参</li>
+  <li>Java是通过值传递的，也就是说通过拷贝传递的。方法无法改变调用方所传入的参数</li>
+  <li>引用对象的变量所携带的是远程控制而不是对象本身。若对方法传入参数，实际上传入的是远程控制的拷贝</li>
+  <li>传入与传出方法的值类型可以隐含的放大或是明确的缩小</li>
+  <li>封装的基本原则：将实例变量标记为私有的 并提供公有的getter与settter来控制存取动作</li>
+  <li>实例变量是声明在类内而不是方法中；局部变量是声明在方法中</li>
+  <li>实例变量有默认值；局部变量没有默认值，在使用前必须初始化</li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th>实例变量</th>
+      <th>默认值</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>integers</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>floating points</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>booleans</td>
+      <td>false</td>
+    </tr>
+    <tr>
+      <td>references</td>
+      <td>null</td>
+    </tr>
+  </tbody>
+</table>
+
+<ul>
+  <li>
+    <p><code class="highlighter-rouge">==</code>比较两个<code class="highlighter-rouge">primitive</code>主数据类型，或判断两个引用是否引用同一个对象</p>
+
+    <p>equals()`来判断两个对象是否在意义上相等</p>
+  </li>
+</ul>
+
+<hr />
+
+<h4 id="java-api">Java API</h4>
+
+<ul>
+  <li>ArrayList 是个 Java API 的类</li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th>ArrayList</th>
+      <th>数组</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>自动调整大小</td>
+      <td>创建时必须确定大小</td>
+    </tr>
+    <tr>
+      <td>存放对象时可以不指定位置<br />myList.add(Int, Object)</td>
+      <td>存放对象时必须指定位置，且不能超出已确定的大小<br />myList[1]</td>
+    </tr>
+    <tr>
+      <td>参数化类型<br />ArrayList&lt;String&gt;<br />只能携带对象而不是 <code class="highlighter-rouge">primitive</code> 主数据类型</td>
+      <td>—</td>
+    </tr>
+  </tbody>
+</table>
+
+<ul>
+  <li>除了 <code class="highlighter-rouge">java.lang</code> 之外，使用到其他包的类都需要指定全名</li>
+  <li>运用 <code class="highlighter-rouge">import</code> 只是省下每个类前面的包名称，程序不会因为用了 <code class="highlighter-rouge">import</code> 而变大或变慢</li>
+</ul>
+
+<hr />
+
+<h4 id="运算符">运算符</h4>
+
+<ul>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>短运算符（&amp;&amp;，</td>
+          <td> </td>
+          <td>）左右两边都符合时才为<code class="highlighter-rouge">true</code>。但当 Java 虚拟机发现左方的表达式已经能得出结果时，不会再计算右方表达式</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>长运算符（&amp;，</td>
+          <td>）在<code class="highlighter-rouge">boolean</code>表达式时会强制 Java 虚拟机一定要计算运算符两边的算式。<code class="highlighter-rouge">&amp;</code>, <code class="highlighter-rouge">|</code>通常是用来作位的运算</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+
+<hr />
+
+<h4 id="继承与多态">继承与多态</h4>
+
+<ul>
+  <li>覆盖的意思是由子类重新定义继承下来的方法以改变或延伸此方法的行为</li>
+  <li>当某个方法在子类中被覆盖过，调用这个方法时会调用到覆盖过的版本</li>
+  <li>“IS-A” 测试适用在继承层次的任何地方。如果类B是继承类A，且类B是类C的父类，则C应该能通过类IS-A A的测试</li>
+  <li>继承概念下的IS-A是个单向的关系。<code class="highlighter-rouge">X IS-A Y</code>隐喻着X可以做出任何Y可以做的事情</li>
+  <li>子类不完全覆盖掉父类的功能，只是加上额外的行为，可以通过<code class="highlighter-rouge">super</code>关键字来取用父类</li>
+</ul>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">roam</span><span class="o">()</span> <span class="o">{</span>
+  <span class="kd">super</span><span class="o">.</span><span class="na">roam</span><span class="o">();</span>
+  <span class="c1">// my own roam stuff</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<ul>
+  <li>
+    <p>父类可以通过存取权限决定子类是否能继承某些特定成员</p>
+
+    <p>受权限限制程度从左往右递减</p>
+
+    <p><code class="highlighter-rouge">private</code> &gt; <code class="highlighter-rouge">default</code> &gt; <code class="highlighter-rouge">protected</code> &gt; <code class="highlighter-rouge">public</code></p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">public</code>类型的成员会被继承；<code class="highlighter-rouge">private</code> 类型的成员不会被继承</p>
+  </li>
+  <li>
+    <p>在多态下，引用与对象可以是不同的类型，引用类型可以是实际对象类型的父类</p>
+  </li>
+  <li>
+    <p>三种防止某个类被作出子类的方法：</p>
+
+    <p>①存取控制：类不标记为公有。非公有的类只能被同一个包的类作子类</p>
+
+    <p>②使用<code class="highlighter-rouge">final</code>修饰符，表示是继承树的末端，不能被继承</p>
+
+    <p>③让类只拥有<code class="highlighter-rouge">private</code>的构造程序</p>
+  </li>
+  <li>
+    <p>防止特定的方法被覆盖，可以将该方法标识上<code class="highlighter-rouge">final</code>这个修饰符。将整个类标识成<code class="highlighter-rouge">final</code>表示没有任何方法可以被覆盖</p>
+  </li>
+  <li>
+    <p>方法的重载是指两个方法的名称相同，但参数不同。重载版的方法只是刚好有相同名字的不同方法，与继承或多态无关。重载的方法与覆盖方法不一样</p>
+  </li>
+  <li>
+    <p>重载方法的返回类型可以不同，不能只改变返回类型，可以更改存取权限</p>
+  </li>
+</ul>
+
+<hr />
+
+<h4 id="接口与抽象类">接口与抽象类</h4>
+
+<ul>
+  <li>抽象类不能创建任何类型的实例，具体的类是实际可以被初始化为对象的</li>
+  <li>设计抽象类时，在类的声明前加上抽象类的关键词<code class="highlighter-rouge">abstract</code></li>
+  <li>抽象类除了被继承过之外，是没有用途，没有值，没有目的的</li>
+  <li>如果声明抽象方法，必须将类也标记为抽象的。非抽象类不能拥有抽象方法</li>
+  <li>抽象方法的意义是就算无法实现出方法的内容，但还是可以定义出一组子型共同的协议</li>
+  <li>抽象的方法没有内容，它的声明以分号结束</li>
+  <li>抽象类可以带有抽象和非抽象的方法</li>
+  <li><code class="highlighter-rouge">Object</code>类是所有类的源头，是所有类的父类</li>
+  <li><code class="highlighter-rouge">Object</code>类没有必须被覆盖过的方法，至少不是正式的 Java抽象类</li>
+  <li><code class="highlighter-rouge">Object</code>类的两个主要目的：作为多态让可以应付多种类型的机制，以及提供 Java 在执行期对任何对象都有需要的方法的实现程序代码，有一些部分的方法与线程有关</li>
+  <li>任何从 <code class="highlighter-rouge">ArrayList&lt;Object&gt;</code> 取出的东西都会被当做 <code class="highlighter-rouge">Object</code> 类型的引用而不管他原来是什么</li>
+  <li>编译器是根据引用类型来判断有哪些method可以调用，而不是根据<code class="highlighter-rouge">Object</code>确实的类型</li>
+  <li>转换回原来的类型</li>
+</ul>
+
+<p>​       法一：确定引用类型</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">Object</span> <span class="n">o</span> <span class="o">=</span> <span class="n">al</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+<span class="nc">Dog</span> <span class="n">d</span> <span class="o">=</span> <span class="o">(</span><span class="nc">Dog</span><span class="o">)</span> <span class="n">o</span><span class="o">;</span> <span class="c1">//类型转换</span>
+<span class="n">d</span><span class="o">.</span><span class="na">roam</span><span class="o">();</span>
+</code></pre></div></div>
+<p>​      法二：不确定引用类型</p>
+
+<p>​     使用<code class="highlighter-rouge">instanceof</code>运算符来检查，如类型转换有误，得到<code class="highlighter-rouge">ClassCastException</code>异常并且终止</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span><span class="o">(</span><span class="n">o</span> <span class="k">instanceof</span> <span class="nc">Dog</span><span class="o">){</span>
+  <span class="nc">Dog</span> <span class="n">d</span> <span class="o">=</span> <span class="o">(</span><span class="nc">Dog</span><span class="o">)</span> <span class="n">o</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<ul>
+  <li>Java 不允许多重继承</li>
+  <li>所有接口的方法都是抽象的</li>
+</ul>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//接口的定义</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Pet</span> <span class="o">{....}</span>
+
+<span class="c1">//接口的实现</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Dog</span> <span class="kd">extends</span> <span class="nc">Canine</span> <span class="kd">implements</span> <span class="nc">Pet</span> <span class="o">{....}</span>
+
+
+</code></pre></div></div>
+
+<ul>
+  <li>接口便于为不同的需求组合出不同的继承层次</li>
+  <li>不同的继承树的类也可以实现相同的接口，类可以实现多个接口</li>
+  <li>调用父类的方法，如果在子类中指定命令<code class="highlighter-rouge">super.runReport()</code>，父类的方法就会执行</li>
+</ul>
+
+<hr />
+
+<h4 id="构造器与垃圾收集器">构造器与垃圾收集器</h4>
+
+<ul>
+  <li>实例变量存在于所属的对象中；局部变量的生命周期只限于方法被放在栈上的这段期间（方法调用至执行完毕为止）</li>
+  <li>当调用方法时，该方法会被放在调用栈的栈顶</li>
+  <li>只有变量本身会放在栈上，对象本身只会存在于堆上</li>
+  <li>所有局部变量都存在于栈上相对应的堆栈块中</li>
+  <li>对象引用变量与<code class="highlighter-rouge">primitive</code>主数据类型变量都是放在栈上</li>
+  <li>实例变量存在于对象所属的堆空间上</li>
+  <li>如果实例变量全都是<code class="highlighter-rouge">primitive</code>主数据类型的，则 Java 会依据<code class="highlighter-rouge">primitive</code>主数据类型的大小为该实例变量留下空间</li>
+  <li>当新建对象的带有对象引用的变量时，Java 会留下空间给实际变量的值，但引用变量的值并不是对象本身。如有声明变量但没有给它赋值，则只会留下变量的空间，直到引用变量被赋值一个新的<code class="highlighter-rouge">Antenna</code>对象才会在堆上占有空间</li>
+  <li>构造函数必须与类同名且没有返回类型</li>
+  <li>唯一在构造函数以外调用构造函数的办法就是新建一个类。如没有自己写构造函数，编译器会自动生成。默认的构造函数是没有参数的</li>
+  <li>构造函数使得有机会可以介入<code class="highlighter-rouge">new</code>的过程</li>
+  <li>Java 可以有与类同名的方法而不会变成构造函数。其差别在于是否有返回类型。构造函数不会有返回类型</li>
+  <li>构造函数不会被继承</li>
+  <li>重载构造函数的意思代表你有一个以上的构造函数且参数不同</li>
+  <li>如果自己已经写了一个有参数的构造函数，并需要一个没有参数的构造函数，则必须自己手动写</li>
+  <li>最好能有无参数的构造函数让人可以选择使用默认值</li>
+  <li>构造函数可以是公有，私有或不指定的</li>
+  <li>在创建新对象时，所有继承下来的构造函数都会被执行</li>
+  <li>抽象类也有构造函数</li>
+  <li>在构造函数中用<code class="highlighter-rouge">super</code>调用父类的构造函数的部分</li>
+</ul>
+
+<p><img src="/img/in-post/head-first-java/sample1.png" alt="图例" /></p>
+
+<ul>
+  <li>
+    <p>调用父类构造函数唯一方法是调用<code class="highlighter-rouge">super()</code></p>
+
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="nf">Duck</span><span class="o">(</span><span class="kt">int</span> <span class="n">newSize</span><span class="o">){</span>
+  <span class="kd">super</span><span class="o">();</span>
+  <span class="n">size</span> <span class="o">=</span>  <span class="n">newSize</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>如自己没有调用<code class="highlighter-rouge">super()，编译器会对每个重载版本的构造函数加上</code>super()`，编译器加的一定是没有参数的版本</p>
+  </li>
+  <li>
+    <p>父类的构造函数必须在子类的构造函数之前结束</p>
+  </li>
+  <li>
+    <p>对<code class="highlighter-rouge">super()</code>的调用必须是构造函数的第一个语句</p>
+  </li>
+  <li>
+    <p>每个构造函数可以选择调用<code class="highlighter-rouge">super()</code>或<code class="highlighter-rouge">this()，但是不能同时调用</code></p>
+  </li>
+  <li>
+    <p>使用<code class="highlighter-rouge">this()</code>来从某个构造函数调用同一个类的另外一个构造函数。<code class="highlighter-rouge">this()</code>只能用在构造函数中，且必须是第一行语句</p>
+  </li>
+  <li>
+    <p>局部变量只会存活在声明该变量的方法中；实例变量的寿命与对象相同，如果对象还活着，则实例变量也会是活的</p>
+
+    <p><img src="/img/in-post/head-first-java/sample2.png" alt="图例" /></p>
+  </li>
+  <li>
+    <p>只要有活着的引用，对象也就会活着。如果某个对象的引用已经不在它范围中。但此引用还是活着的，则此对象就会继续活在堆上</p>
+  </li>
+  <li>
+    <p>释放对象引用的方法：</p>
+
+    <p>①引用永久性的离开它的范围 ②引用被赋值到其他的对象上 ③直接将引用设定为<code class="highlighter-rouge">null</code></p>
+  </li>
+  <li>
+    <p>对<code class="highlighter-rouge">null</code>引用使用圆点运算符会在执行期遇到<code class="highlighter-rouge">NullPointerException</code>这样的错误</p>
+  </li>
+</ul>
+
+<hr />
+
+<h4 id="数字与静态">数字与静态</h4>
+
+<ul>
+  <li>在 Math 这个类中的所有方法都不需要实例变量值。因为这些方法都是静态的，所以无需 Math 实例， 会用到的只有类本身</li>
+  <li><code class="highlighter-rouge">static</code>这个关键词可以标记出不需要类实例的方法。一个静态的方法代表说”一种不依靠实例变量也就不需要对象的行为”</li>
+  <li>以类的名字调用静态的方法；以引用变量的名称调用非静态的方法</li>
+  <li>带有静态的方法的类通常不打算要被初始化</li>
+  <li>任何非静态的方法都代表必须以某种实例来操作</li>
+  <li>静态的方法不能调用非静态的变量，也不能调用非静态的方法</li>
+  <li>静态的方法是不知道堆上有哪些实例的</li>
+  <li>静态变量是被同类的所有实例共享的变量</li>
+  <li>每个实例一个实例变量；每个类一个静态变量</li>
+  <li>静态变量是共享的。同一类所有的实例共享一份静态变量</li>
+  <li>静态变量会在该类的任何静态方法执行之前就初始化</li>
+  <li>如没有给静态变量赋初值，它就会被设定为默认值，就像实例变量所被赋予的默认值一样</li>
+  <li>一个被标记为<code class="highlighter-rouge">final</code>的变量代表它一旦被初始化之后就不会改变</li>
+  <li>识别变量为不变的常数 <code class="highlighter-rouge">public  static final</code></li>
+  <li>常数变量名称应该要都是大写字母</li>
+  <li>静态初始化程序是一段在加载类时会执行的程序代码，它会在其他程序可以使用该类之前就执行，所以很适合放静态<code class="highlighter-rouge">finnal</code>变量的起始程序</li>
+</ul>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Foo</span> <span class="o">{</span>
+  <span class="kd">final</span> <span class="kd">static</span> <span class="kt">int</span> <span class="n">x</span><span class="o">;</span>
+  <span class="kd">static</span> <span class="o">{</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="mi">42</span><span class="o">;</span>     
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<ul>
+  <li>静态<code class="highlighter-rouge">final</code>变量的初始化：</li>
+</ul>
+
+<p>①声明的时候</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Foo</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="no">FOO_X</span> <span class="o">=</span> <span class="mi">25</span><span class="err">；</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>②在静态初始化程序中</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Bar</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">double</span> <span class="no">BAR_SIGN</span><span class="o">;</span>
+    
+  <span class="kd">static</span> <span class="o">{</span>
+    <span class="no">BAR_SIGN</span> <span class="o">=</span> <span class="o">(</span><span class="kt">double</span><span class="o">)</span> <span class="nc">Math</span><span class="o">.</span><span class="na">random</span><span class="o">();</span>      
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<ul>
+  <li><code class="highlighter-rouge">final</code>关键词来修饰非静态的变量，包括了实例变量，局部变量，甚至是方法的参数</li>
+  <li><code class="highlighter-rouge">final</code>的变量代表你不能改变它的值；<code class="highlighter-rouge">final</code>的方法代表你不能覆盖该方法；<code class="highlighter-rouge">final</code>的类代表你不能继承该类</li>
+  <li>非静态方法不可以调用该类静态的方法或静态的变量</li>
+  <li>
+    <p>将类标记为<code class="highlighter-rouge">final</code>的主要目的是为了安全</p>
+  </li>
+  <li>如果一个类不能被子类化，则它的方法根本就无法被覆盖。如果只是想限制部分的方法不能被覆盖，那就单独地标记为<code class="highlighter-rouge">final</code></li>
+</ul>
+:ET

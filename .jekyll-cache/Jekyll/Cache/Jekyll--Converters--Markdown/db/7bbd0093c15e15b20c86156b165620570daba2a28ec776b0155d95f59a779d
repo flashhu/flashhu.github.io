@@ -1,0 +1,368 @@
+I"
+(<p>Typora教程 <a href="https://blog.csdn.net/cris_zz/article/details/82919401#25_313">https://blog.csdn.net/cris_zz/article/details/82919401#25_313</a></p>
+
+<hr />
+
+<h3 id="font-colorf08080--size5-字体设置font">&lt;font color=#f08080  size=5 &gt;字体设置&lt;/font&gt;</h3>
+
+<h4 id="one斜体">:one:斜体</h4>
+
+<p>​      * 文字 *    =&gt;    <em>文字</em></p>
+
+<p>​       _文字_      =&gt;    <em>文字</em></p>
+
+<h4 id="two加粗">:two:加粗</h4>
+
+<p>​    **文字**    =&gt;    <strong>文字</strong></p>
+
+<p>​    __文字__      =&gt;    <strong>文字</strong></p>
+
+<h4 id="three删除线">:three:删除线</h4>
+
+<p>~~文字~~     =&gt;   <del>文字</del></p>
+
+<hr />
+
+<p>###  &lt;font color=#f08080  size=5 &gt;标题设置&lt;/font&gt;</p>
+
+<p>:one:## 文字</p>
+
+<p>:running_man: ………###</p>
+
+<hr />
+
+<h3 id="font-colorf08080--size5-插入图片font">&lt;font color=#f08080  size=5 &gt;插入图片&lt;/font&gt;</h3>
+
+<p>:one: ! [图片描述](图片地址)</p>
+
+<p>​      <img src="https://gss2.bdstatic.com/-fo3dSag_xI4khGkpoWK1HF6hhy/baike/c0%3Dbaike92%2C5%2C5%2C92%2C30/sign=a3aded747ff08202399f996d2a929088/2934349b033b5bb5c70c29a93ad3d539b700bc89.jpg" alt="biang" /></p>
+
+<hr />
+
+<h3 id="font-colorf08080--size5-插入链接font">&lt;font color=#f08080  size=5 &gt;插入链接&lt;/font&gt;</h3>
+
+<p>:one:&lt;链接&gt;</p>
+
+<p>​     <a href="https://baike.baidu.com/item/biang/2015710?fr=aladdin">https://baike.baidu.com/item/biang/2015710?fr=aladdin</a></p>
+
+<hr />
+
+<h3 id="font-colorf08080--size5-分割线font">&lt;font color=#f08080  size=5 &gt;分割线&lt;/font&gt;</h3>
+
+<h3 id="one-----">:one:  ---</h3>
+
+<h3 id="two--">:two:  ***</h3>
+
+<h3 id="three--___">:three:  ___</h3>
+
+<hr />
+
+<h3 id="font-colorf08080--size5-代码块font">&lt;font color=#f08080  size=5 &gt;代码块&lt;/font&gt;</h3>
+
+<p>:one:```</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span> <span class="s">"hello world"</span>
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="font-colorf08080--size5-行内式font">&lt;font color=#f08080  size=5 &gt;行内式&lt;/font&gt;</h3>
+
+<h3 id="font-colorf08080--size5-行内式fontwrench">&lt;font color=#f08080  size=5 &gt;行内式&lt;/font&gt;:wrench:</h3>
+
+<p>:one:`代码`</p>
+
+<p>​    <code class="highlighter-rouge">print  "hello world"</code></p>
+
+<hr />
+
+<h3 id="font-colorf08080--size5-引用font">&lt;font color=#f08080  size=5 &gt;引用&lt;/font&gt;</h3>
+
+<h4 id="one-文字">:one:&gt; 文字</h4>
+
+<blockquote>
+  <p>文字</p>
+</blockquote>
+
+<h4 id="two-文字">:two:&gt;&gt; 文字</h4>
+
+<blockquote>
+  <blockquote>
+    <p>文字</p>
+  </blockquote>
+</blockquote>
+
+<h4 id="three-加粗文字">:three: &gt;**加粗文字**</h4>
+
+<blockquote>
+  <p><strong>加粗文字</strong></p>
+</blockquote>
+
+<h4 id="four-引用分级标题">:four: 引用###…分级标题</h4>
+
+<blockquote>
+  <h6 id="分级标题">分级标题</h6>
+</blockquote>
+
+<p>:runner: ……请继续1+1大法</p>
+
+<hr />
+
+<h3 id="font-colorf08080--size5-列表font">&lt;font color=#f08080  size=5 &gt;列表&lt;/font&gt;</h3>
+
+<p>:one:*    or    +    or    -</p>
+
+<ul>
+  <li>
+    <p>:heart:</p>
+  </li>
+  <li>
+    <p>:crossed_fingers:</p>
+  </li>
+  <li>
+    <p>:love_letter:</p>
+  </li>
+</ul>
+
+<p>:two:1.      2.      3</p>
+
+<ol>
+  <li>:moon:</li>
+  <li>:smile:</li>
+</ol>
+
+<p>3.空格不能少:warning:</p>
+
+<p>:three: to do list</p>
+
+<p>- [ ] 文字</p>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />to do</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" checked="checked" />done</li>
+</ul>
+
+<p>:pushpin:1. 加粗效果不能直接用于列表标题里面，但是可以嵌套在列表里面混合     使用。</p>
+
+<ol>
+  <li>列表中包含代码块（前面加2个tab或者8个空格，并且需要空一行，否则不显示）</li>
+</ol>
+
+<hr />
+
+<h3 id="font-colorf08080--size5-表格font">&lt;font color=#f08080  size=5 &gt;表格&lt;/font&gt;</h3>
+
+<p>:one:</p>
+
+<p>|错误类型 |原因 |表现|</p>
+
+<p>内容填入</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>错误类型</th>
+      <th>原因</th>
+      <th>表现</th>
+      <th>杀伤力</th>
+      <th>修改难度</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>编译错误</td>
+      <td>不符合C 语言基本语法要求</td>
+      <td>编译器的吼叫（error）或嘟囔（warn）</td>
+      <td>★★</td>
+      <td>★★</td>
+    </tr>
+    <tr>
+      <td>运行错误</td>
+      <td>非法操作，如被零除或读取非法内存</td>
+      <td>操作系统终止该程序运行</td>
+      <td>★★★★</td>
+      <td>★★★★</td>
+    </tr>
+    <tr>
+      <td>逻辑错误</td>
+      <td>算法级或逻辑级错误</td>
+      <td>程序正常运行，但是结果不对</td>
+      <td>★★★★★</td>
+      <td>★★★★★</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h3 id="font-colorf08080--size5-特殊符号font">&lt;font color=#f08080  size=5 &gt;特殊符号&lt;/font&gt;</h3>
+
+<p>:one:详见<a href="https://unicode-table.com/cn/">https://unicode-table.com/cn/</a></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">代码</th>
+      <th style="text-align: center">结果</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">&amp;#10084；</td>
+      <td style="text-align: center">❤</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">&amp;#10003；</td>
+      <td style="text-align: center">✓</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">&amp;#9728；</td>
+      <td style="text-align: center">☀</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">&amp;#9733；</td>
+      <td style="text-align: center">★</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">&amp;#9730；</td>
+      <td style="text-align: center">☂</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">&amp;#10052；</td>
+      <td style="text-align: center">❄</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">&amp;#9835；</td>
+      <td style="text-align: center">♫</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>:two:emoji     详见 <a href="https://emojipedia.org/">https://emojipedia.org/</a></p>
+
+<hr />
+
+<h3 id="font-colorf08080--size5-字体字号颜色背景色font">&lt;font color=#f08080  size=5 &gt;字体字号颜色背景色&lt;/font&gt;</h3>
+
+<font face="楷体" size="3" color="black">文字</font>
+
+<p>&lt;font face=”楷体” size = 3 color=black&gt;文字&lt;/font&gt;</p>
+
+<p>:one: 字体  face (脸型)</p>
+
+<p>&lt;font face=”楷体”&gt;文字&lt;/font&gt;</p>
+
+<h5 id="文字"><font face="楷体">文字</font></h5>
+
+<p>:two: 字号   size (尺寸)</p>
+
+<p>&lt;font size=4&gt;文字&lt;/font&gt;</p>
+
+<font size="2">文字</font>
+
+<p>:three:  颜色   color (肤色)</p>
+
+<p>&lt;font color=gray&gt;文字&lt;/font&gt;</p>
+
+<font color="gray">文字</font>
+
+<p><img src="https://img-blog.csdn.net/20180802162907453?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTQwNjE2MzA=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dis" alt="可查" /></p>
+
+<p>:four: 背景色</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> &lt;table&gt;&lt;tr&gt;&lt;td bgcolor=yellow&gt;背景色是：yellow&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+</code></pre></div></div>
+
+<table><tr><td bgcolor="teal">背景色是：teal</td></tr></table>
+
+<hr />
+
+<h3 id="font-colorf08080--size5-目录font">&lt;font color=#f08080  size=5 &gt;目录&lt;/font&gt;</h3>
+
+<p>:one: [TOC]  全文目录</p>
+
+<hr />
+
+<h3 id="font-colorf08080--size5-链接font">&lt;font color=#f08080  size=5 &gt;链接&lt;/font&gt;</h3>
+
+<p>:one:行内式</p>
+
+<p>这是一个[例子](https://www.appinn.com/markdown/#link”参考教程”)</p>
+
+<p>这是一个<a href="https://www.appinn.com/markdown/#link&quot;参考教程&quot;">例子</a></p>
+
+<p>:two:参考式</p>
+
+<p>这也是一个[例子][id]</p>
+
+<p>这也是一个<a href="https://www.appinn.com/markdown/#link" title="title">例子</a></p>
+
+<p>(在文章任一位置)</p>
+
+<p>:pushpin:</p>
+
+<ul>
+  <li>方括号（前面可以选择性地加上至多三个空格来缩进），里面输入链接文字</li>
+  <li>接着一个冒号</li>
+  <li>接着一个以上的空格或制表符</li>
+  <li>接着链接的网址</li>
+  <li>选择性地接着 title 内容，可以用单引号、双引号或是括弧包着</li>
+  <li>链接辨别标签可以有字母、数字、空白和标点符号，但是并<strong>不</strong>区分大小写</li>
+</ul>
+
+<hr />
+
+<h3 id="font-colorf08080--size5-注脚font">&lt;font color=#f08080  size=5 &gt;注脚&lt;/font&gt;</h3>
+
+<p>:one:比如这里需要加注<sup id="fnref:1"><a href="#fn:1" class="footnote">1</a></sup></p>
+
+<hr />
+
+<h3 id="font-colorf08080--size5-数学公式fontwrench">&lt;font color=#f08080  size=5 &gt;数学公式&lt;/font&gt;:wrench:</h3>
+
+<p>参考链接<a href="https://www.mohu.org/info/symbols/symbols.htm">https://www.mohu.org/info/symbols/symbols.htm</a></p>
+
+<hr />
+
+<h3 id="font-colorf08080--size5-流程图font">&lt;font color=#f08080  size=5 &gt;流程图&lt;/font&gt;</h3>
+
+<p>:one: ```     =&gt;     flow</p>
+
+<p>st=&gt;start: 开始
+op1=&gt;operation: My Operation
+c=&gt;condition: Yes or No?
+e=&gt;end: 结束</p>
+
+<p>st-&gt;op1-&gt;c
+c(yes)-&gt;e
+c(no)-&gt;op1</p>
+
+<pre><code class="language-flow">st=&gt;start: 开始
+op1=&gt;operation: My Operation
+c=&gt;condition: Yes or No?
+e=&gt;end: 结束
+
+st(right)-&gt;op1(right)-&gt;c
+c(yes, right)-&gt;e
+c(no,top)-&gt;op1
+</code></pre>
+
+<hr />
+
+<h3 id="font-colorf08080--size5-序列图font">&lt;font color=#f08080  size=5 &gt;序列图&lt;/font&gt;</h3>
+
+<p>:one:</p>
+
+<pre><code class="language-sequence">A-&gt;B:wrong answer
+Note left of B:pending
+B--&gt;A:P E
+</code></pre>
+
+<div class="footnotes">
+  <ol>
+    <li id="fn:1">
+      <p>参考<a href="https://blog.csdn.net/u014061630/article/details/81359144#24-分割线">https://blog.csdn.net/u014061630/article/details/81359144#24-分割线</a> <a href="#fnref:1" class="reversefootnote">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+:ET
