@@ -1,4 +1,4 @@
-I"D<h3 id="1创建-github-仓库">1.创建 GitHub 仓库</h3>
+I"�<h3 id="1创建-github-仓库">1.创建 GitHub 仓库</h3>
 
 <p><img src="https://img-blog.csdnimg.cn/20200219191042399.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NTM3NDE0,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述" /></p>
 
@@ -49,29 +49,39 @@ gem install jekyll bundler
 
 <p>本文选择了第一个仓库链接作为博客模板</p>
 
-<p><strong>步骤罗列</strong>
-1.文件 clone 到本地
-<code class="highlighter-rouge">git clone git@github.com:Huxpro/huxblog-boilerplate.git</code></p>
+<p><strong>步骤罗列</strong></p>
 
 <ol>
+  <li>
+    <p>文件 clone 到本地
+<code class="highlighter-rouge">git clone git@github.com:Huxpro/huxblog-boilerplate.git</code></p>
+  </li>
   <li>将自己的仓库 clone 到本地
-<code class="highlighter-rouge">git clone https://github.com/用户名/用户名.github.io.git</code>
-3.将 huxblog-boilerplate 中的内容 复制到 用户名.github.io 文件夹中
-4.根据仓库的文档，修改<code class="highlighter-rouge">_config.yml</code>
-5.修改其他页面，如 <code class="highlighter-rouge">index.html</code> , <code class="highlighter-rouge">about.html</code>, <code class="highlighter-rouge">tag.html</code>
+<code class="highlighter-rouge">git clone https://github.com/用户名/用户名.github.io.git</code></li>
+  <li>
+    <p>本地预览主题<code class="highlighter-rouge">jekyll serve</code></p>
+  </li>
+  <li>将 huxblog-boilerplate 中的内容 复制到 用户名.github.io 文件夹中</li>
+  <li>根据仓库的文档，修改<code class="highlighter-rouge">_config.yml</code></li>
+  <li>修改其他页面，如 <code class="highlighter-rouge">index.html</code> , <code class="highlighter-rouge">about.html</code>, <code class="highlighter-rouge">tag.html</code>
 注意修改的不是文件夹 <code class="highlighter-rouge">_site</code> 中页面</li>
 </ol>
 
-<p><img src="https://img-blog.csdnimg.cn/2020022010360032.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NTM3NDE0,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述" />
-6.将文件上传到远程仓库中
-在 用户名.github.io 文件夹 下打开 git</p>
+<p><img src="https://img-blog.csdnimg.cn/2020022010360032.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NTM3NDE0,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述" /></p>
+
+<ol>
+  <li>将文件上传到远程仓库中
+在 用户名.github.io 文件夹 下打开 git</li>
+</ol>
 
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git add .    //添加所有文件到版本库
 git commit -m "some msg" //提交修改
 git push -u origin master //将本地仓库push到github上
 </code></pre></div></div>
 
-<p>7.打开 用户名.github.io 网页</p>
+<ol>
+  <li>打开 用户名.github.io 网页</li>
+</ol>
 
 <p><strong>可能有的疑问</strong></p>
 

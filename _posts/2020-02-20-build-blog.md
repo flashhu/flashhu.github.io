@@ -66,19 +66,23 @@ gem install jekyll bundler
 本文选择了第一个仓库链接作为博客模板
 
 **步骤罗列**
-1.文件 clone 到本地
-`git clone git@github.com:Huxpro/huxblog-boilerplate.git`
+
+1. 文件 clone 到本地
+   `git clone git@github.com:Huxpro/huxblog-boilerplate.git`
 
 2. 将自己的仓库 clone 到本地
    `git clone https://github.com/用户名/用户名.github.io.git`
-   3.将 huxblog-boilerplate 中的内容 复制到 用户名.github.io 文件夹中
-   4.根据仓库的文档，修改`_config.yml`
-   5.修改其他页面，如 `index.html` , `about.html`, `tag.html`
+3. 本地预览主题`jekyll serve`
+
+2. 将 huxblog-boilerplate 中的内容 复制到 用户名.github.io 文件夹中
+3. 根据仓库的文档，修改`_config.yml`
+4. 修改其他页面，如 `index.html` , `about.html`, `tag.html`
    注意修改的不是文件夹 `_site` 中页面 
 
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/2020022010360032.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ0NTM3NDE0,size_16,color_FFFFFF,t_70)
-6.将文件上传到远程仓库中
-在 用户名.github.io 文件夹 下打开 git
+
+6. 将文件上传到远程仓库中
+   在 用户名.github.io 文件夹 下打开 git
 
 ```
 git add .    //添加所有文件到版本库
@@ -86,7 +90,7 @@ git commit -m "some msg" //提交修改
 git push -u origin master //将本地仓库push到github上
 ```
 
-7.打开 用户名.github.io 网页
+7. 打开 用户名.github.io 网页
 
 
 **可能有的疑问**
