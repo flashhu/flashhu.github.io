@@ -2,7 +2,7 @@
 layout:     post
 title:      "使用GitHub Pages搭建博客"
 subtitle:   "从0到1全记录"
-date:       2019-02-20 13:55:35
+date:       2020-02-20 13:55:35
 author:     "虎鲸"
 header-img: "img/post-bg-build-blog.jpg"
 tags:
