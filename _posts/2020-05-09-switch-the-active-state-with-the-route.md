@@ -95,3 +95,64 @@ export default createBrowserHistory();
 ```
 
 收工！
+
+
+
+***
+
+#### 补充记录
+当上述代码，直接通过`npm run build`打包之后，会发现通过路由显示的组件将不能正常显示
+以下为解决上述情况的新写法，视需要选择  [灵感来源](https://github.com/brickspert/blog/issues/3)
+①使用`wiithRouter`， 并将`selectedKeys` 设为当前`window.location.pathname`值
+```javascript
+...
+import { withRouter } from 'react-router-dom'
+...
+class NavWrapper extends Component {
+	const path = this.props.location.pathname;
+...
+                <Menu 
+                    theme="light" 
+                    mode="horizontal" 
+                    defaultSelectedKeys={USER_MENU_LIST[0].name}
+                    selectedKeys={[path]}
+                >
+                    {this.currUser.type && ADMIN_MENU_LIST.map((item) =>
+                        <Menu.Item key={item.path}>
+                            <NavLink to={item.path}>
+                                <span>{item.name}</span>
+                            </NavLink>
+                        </Menu.Item>
+                    )}
+                </Menu>
+...
+}
+
+export default withRouter(NavWrapper)
+```
+②使用 HashRouter
+```javascript
+...
+import { Switch, Route, HashRouter as Router } from 'react-router-dom'
+
+...
+function App() {
+  return (
+    <Router>
+      <NavWrapper />
+	  <ContentWrapper>
+    	<Switch>
+          <Route path='/admin' exact component={loadable(() => import('./app/admin/health'))} />
+            ...
+        </Switch>
+      </ContentWrapper>
+    </Router>
+  );
+}
+...
+```
+```javascript
+import { createHashHistory } from 'history';
+
+export default createHashHistory();
+```

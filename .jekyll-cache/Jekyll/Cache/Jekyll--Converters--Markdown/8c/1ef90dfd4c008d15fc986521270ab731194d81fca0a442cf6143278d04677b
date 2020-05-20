@@ -1,4 +1,4 @@
-I"�0<blockquote>
+I"�<<blockquote>
   <p>上回说到，虎子来到了阿里云大陆，试图闯出一片天地 ……</p>
 
   <p>新手任务：搭建博客</p>
@@ -50,7 +50,25 @@
 
 <p>选你所爱，后缀记得搜一搜认知度如何，备案会不会很难</p>
 
-<p>备案在域名实名后，经过两到三个工作日可以正常提交</p>
+<p><strong>关于备案的碎碎念</strong></p>
+
+<p>备案在域名实名后，经过两到三个工作日可以正常提交（隔天就可以去试试）</p>
+
+<p>顺利提交后，过段时间（晚上提交的话，第二天上午八九点这样）会接到阿里云客服中心的电话，核对一些信息</p>
+
+<p>按照短信提示，进入工信部验证页面，提交到管局审核（快的话，第二天就备案完成啦！）</p>
+
+<p><strong>域名解析</strong></p>
+
+<p>控制台 &gt; 域名</p>
+
+<p>对应域名记录 &gt; 解析 &gt; 添加记录</p>
+
+<p>记录类型，解析线路，TTL默认值，不修改</p>
+
+<p>主机记录：www</p>
+
+<p>记录值：实例的公网ip地址</p>
 
 <hr />
 
@@ -148,8 +166,6 @@ vi /etc/ssh/sshd_config #进入配置文件
 
 <p>关闭会话窗，重新登录，root用户登不进去，即为成功</p>
 
-<p><img src="/img/in-post/aliyun-1/8.png" alt="Xshell" /></p>
-
 <p><img src="/img/in-post/aliyun-1/9.png" alt="阿里云" /></p>
 
 <p><strong>？怎么登录 root 用户  怎么改回可以登录</strong></p>
@@ -170,9 +186,17 @@ vi /etc/ssh/sshd_config #进入配置文件
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>systemctl restart sshd.service #重启sshd服务
 </code></pre></div></div>
 
+<p><strong>6.修复漏洞</strong></p>
+
+<p>邮箱会收到「云安全中心安全日报」的邮件，介绍详细，可以对照着修正 good!</p>
+
+<p><a href="https://juejin.im/post/5cfdcca9e51d4556f76e806a">记一次服务器被攻击后的经历</a></p>
+
 <hr />
 
 <h4 id="第三话-开始搭建">第三话： 开始搭建</h4>
+
+<p>个人建站，一般的主要用途是搭建个人博客。这里使用 WordPress 。搞起！</p>
 
 <p><a href="https://www.zhihu.com/question/19697826">LAMP和LNMP，你更愿意选择谁，为什么？</a></p>
 
@@ -261,4 +285,53 @@ sudo systemctl restart apache2.service #重启Apache服务
 
 <p>关闭页面后，再次打开，实例公网IP地址出现前端页面，实例公网IP地址<code class="highlighter-rouge">/wp-admin</code>进入后台</p>
 
+<p><strong>注</strong></p>
+
+<p>如按照链接中，运行了<code class="highlighter-rouge">sudo chmod -R 777 /var/www/html/</code> 再修改权限时</p>
+
+<p>如设置为<code class="highlighter-rouge">760</code>,网站会无法正常显示；如设置为<code class="highlighter-rouge">761</code>,网站能正常显示，但不能登录；如设置为<code class="highlighter-rouge">765</code>，网站可显示，可登录</p>
+
+<p>权限不清楚的话 留传送门: <a href="https://www.jianshu.com/p/ac4e994a47e2">Linux修改目录权限</a></p>
+
+<hr />
+
+<h4 id="第四话更新美化">第四话：更新美化</h4>
+
+<p>进入 WordPress 后台</p>
+
+<p>外观 &gt; 主题 &gt; 添加</p>
+
+<p>请开始表演你的装扮空间技能！</p>
+
+<p><strong>？未能连接到FTP服务器…….:21</strong></p>
+
+<p><a href="https://blog.csdn.net/steve_sjf/article/details/88533765">WordPress未能连接到FTP服务器 xxxxxxx:21</a></p>
+
+<p><strong>？ 安装失败，无法创建目录</strong></p>
+
+<p><a href="https://blog.csdn.net/qq_32846595/article/details/54766833">解决wordpress下载插件，安装失败，无法创建目录问题</a></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cd /var/www
+chown -R www-data:www-data html
+#如页面不能正常打开
+sudo chmod -R 705 /var/www/html/
+</code></pre></div></div>
+
+<p><strong>？too many requests</strong></p>
+
+<p>检查一下网络</p>
+
+<p><strong>？找不到入口添加备案信息</strong></p>
+
+<p>主题对应的文件夹放在<code class="highlighter-rouge">/var/www/html/wp-content/themes</code>下</p>
+
+<p>进入正在使用的主题文件夹，打开<code class="highlighter-rouge">footer.php</code>文件</p>
+
+<p>添加代码 例<code class="highlighter-rouge">&lt;a href="www.beian.miit.gov.cn/"&gt;xxxxxxx&lt;/a&gt;</code></p>
+
+<p>代码添加的位置，可以对照页面（F12打开开发者工具）</p>
+
+<p>重设样式可以通过   自定义 &gt; 额外CSS  实现</p>
+
+<p>恭喜！咱成功升为二级小白！</p>
 :ET

@@ -1,0 +1,141 @@
+I"�D<h4 id="问题描述">问题描述</h4>
+<p>在使用 antd 的过程中，突然发现 &lt;Menu&gt; 中选中状态的元素并没有随路由变化而改变
+此时相关代码如下：</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&lt;</span><span class="nx">Menu</span> 
+    <span class="nx">theme</span><span class="o">=</span><span class="dl">"</span><span class="s2">light</span><span class="dl">"</span> 
+    <span class="nx">mode</span><span class="o">=</span><span class="dl">"</span><span class="s2">horizontal</span><span class="dl">"</span> 
+    <span class="nx">defaultSelectedKeys</span><span class="o">=</span><span class="p">{</span><span class="nx">USER_MENU_LIST</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">name</span><span class="p">}</span>
+<span class="o">&gt;</span>
+    <span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">currUser</span><span class="p">.</span><span class="nx">type</span> <span class="o">&amp;&amp;</span> <span class="nx">ADMIN_MENU_LIST</span><span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">item</span><span class="p">)</span> <span class="o">=&gt;</span>
+        <span class="o">&lt;</span><span class="nx">Menu</span><span class="p">.</span><span class="nx">Item</span> <span class="nx">key</span><span class="o">=</span><span class="p">{</span><span class="nx">item</span><span class="p">.</span><span class="nx">path</span><span class="p">}</span><span class="o">&gt;</span>
+            <span class="o">&lt;</span><span class="nx">NavLink</span> <span class="nx">to</span><span class="o">=</span><span class="p">{</span><span class="nx">item</span><span class="p">.</span><span class="nx">path</span><span class="p">}</span><span class="o">&gt;</span>
+                <span class="o">&lt;</span><span class="nx">span</span><span class="o">&gt;</span><span class="p">{</span><span class="nx">item</span><span class="p">.</span><span class="nx">name</span><span class="p">}</span><span class="o">&lt;</span><span class="sr">/span</span><span class="err">&gt;
+</span>            <span class="o">&lt;</span><span class="sr">/NavLink</span><span class="err">&gt;
+</span>        <span class="o">&lt;</span><span class="sr">/Menu.Item</span><span class="err">&gt;
+</span>    <span class="p">)}</span>
+<span class="o">&lt;</span><span class="sr">/Menu</span><span class="err">&gt;
+</span></code></pre></div></div>
+<hr />
+<h4 id="解决办法">解决办法</h4>
+<p>搜寻已有的 <a href="https://github.com/vueComponent/ant-design-vue/issues/515">issue</a>，其中的链接已失效，其中的建议并没有成功解决笔者的问题
+网络上查找相关文章，提到的主要关键字有：<code class="highlighter-rouge">history</code>， <code class="highlighter-rouge">withRouter</code>，<code class="highlighter-rouge">selectedKeys</code> 
+逐点击破</p>
+<ul>
+  <li><code class="highlighter-rouge">selectedKeys</code> 
+其为 antd 提供的API，用于修改当前选中的元素</li>
+  <li><code class="highlighter-rouge">withRouter</code>
+路由组件可以直接获取<code class="highlighter-rouge">match</code>，<code class="highlighter-rouge">history</code>，<code class="highlighter-rouge">location</code>，非路由组件需要使用<code class="highlighter-rouge">wiithRouter</code>来获取</li>
+  <li><code class="highlighter-rouge">history</code>
+监听浏览器地址变化，转化为<code class="highlighter-rouge">location</code>  <a href="https://react-guide.github.io/react-router-cn/docs/guides/basics/Histories.html">文档传送门</a></li>
+</ul>
+
+<p>以下为修改后的相关代码，部分省略
+①使用<code class="highlighter-rouge">wiithRouter</code>， 并将<code class="highlighter-rouge">selectedKeys</code> 设为当前<code class="highlighter-rouge">window.location.pathname</code>值</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">...</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">withRouter</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">react-router-dom</span><span class="dl">'</span>
+<span class="p">...</span>
+<span class="kd">class</span> <span class="nx">NavWrapper</span> <span class="kd">extends</span> <span class="nx">Component</span> <span class="p">{</span>
+	<span class="kd">const</span> <span class="nx">path</span> <span class="o">=</span> <span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">pathname</span><span class="p">;</span>
+<span class="p">...</span>
+                <span class="o">&lt;</span><span class="nx">Menu</span> 
+                    <span class="nx">theme</span><span class="o">=</span><span class="dl">"</span><span class="s2">light</span><span class="dl">"</span> 
+                    <span class="nx">mode</span><span class="o">=</span><span class="dl">"</span><span class="s2">horizontal</span><span class="dl">"</span> 
+                    <span class="nx">defaultSelectedKeys</span><span class="o">=</span><span class="p">{</span><span class="nx">USER_MENU_LIST</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">name</span><span class="p">}</span>
+                    <span class="nx">selectedKeys</span><span class="o">=</span><span class="p">{[</span><span class="nx">path</span><span class="p">]}</span>
+                <span class="o">&gt;</span>
+                    <span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">currUser</span><span class="p">.</span><span class="nx">type</span> <span class="o">&amp;&amp;</span> <span class="nx">ADMIN_MENU_LIST</span><span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">item</span><span class="p">)</span> <span class="o">=&gt;</span>
+                        <span class="o">&lt;</span><span class="nx">Menu</span><span class="p">.</span><span class="nx">Item</span> <span class="nx">key</span><span class="o">=</span><span class="p">{</span><span class="nx">item</span><span class="p">.</span><span class="nx">path</span><span class="p">}</span><span class="o">&gt;</span>
+                            <span class="o">&lt;</span><span class="nx">NavLink</span> <span class="nx">to</span><span class="o">=</span><span class="p">{</span><span class="nx">item</span><span class="p">.</span><span class="nx">path</span><span class="p">}</span><span class="o">&gt;</span>
+                                <span class="o">&lt;</span><span class="nx">span</span><span class="o">&gt;</span><span class="p">{</span><span class="nx">item</span><span class="p">.</span><span class="nx">name</span><span class="p">}</span><span class="o">&lt;</span><span class="sr">/span</span><span class="err">&gt;
+</span>                            <span class="o">&lt;</span><span class="sr">/NavLink</span><span class="err">&gt;
+</span>                        <span class="o">&lt;</span><span class="sr">/Menu.Item</span><span class="err">&gt;
+</span>                    <span class="p">)}</span>
+                <span class="o">&lt;</span><span class="sr">/Menu</span><span class="err">&gt;
+</span><span class="p">...</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">withRouter</span><span class="p">(</span><span class="nx">NavWrapper</span><span class="p">)</span>
+</code></pre></div></div>
+<p>②使用 Router 实现自定义的 history</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">...</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">Switch</span><span class="p">,</span> <span class="nx">Route</span><span class="p">,</span> <span class="nx">Router</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">react-router-dom</span><span class="dl">'</span>
+<span class="k">import</span> <span class="nx">history</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">./history</span><span class="dl">'</span>
+<span class="p">...</span>
+<span class="kd">function</span> <span class="nx">App</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">(</span>
+    <span class="o">&lt;</span><span class="nx">Router</span> <span class="nx">history</span><span class="o">=</span><span class="p">{</span><span class="nx">history</span><span class="p">}</span><span class="o">&gt;</span>
+      <span class="o">&lt;</span><span class="nx">NavWrapper</span> <span class="o">/&gt;</span>
+	  <span class="o">&lt;</span><span class="nx">ContentWrapper</span><span class="o">&gt;</span>
+    	<span class="o">&lt;</span><span class="nx">Switch</span><span class="o">&gt;</span>
+          <span class="o">&lt;</span><span class="nx">Route</span> <span class="nx">path</span><span class="o">=</span><span class="dl">'</span><span class="s1">/admin</span><span class="dl">'</span> <span class="nx">exact</span> <span class="nx">component</span><span class="o">=</span><span class="p">{</span><span class="nx">loadable</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="k">import</span><span class="p">(</span><span class="dl">'</span><span class="s1">./app/admin/health</span><span class="dl">'</span><span class="p">))}</span> <span class="sr">/</span><span class="err">&gt;
+</span>            <span class="p">...</span>
+        <span class="o">&lt;</span><span class="sr">/Switch</span><span class="err">&gt;
+</span>      <span class="o">&lt;</span><span class="sr">/ContentWrapper</span><span class="err">&gt;
+</span>    <span class="o">&lt;</span><span class="sr">/Router</span><span class="err">&gt;
+</span>  <span class="p">);</span>
+<span class="p">}</span>
+<span class="p">...</span>
+</code></pre></div></div>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">createBrowserHistory</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">history</span><span class="dl">'</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">createBrowserHistory</span><span class="p">();</span>
+</code></pre></div></div>
+
+<p>收工！</p>
+
+<hr />
+
+<h4 id="补充记录">补充记录</h4>
+<p>当上述代码，直接通过<code class="highlighter-rouge">npm run build</code>打包之后，会发现通过路由显示的组件将不能正常显示
+以下为解决上述情况的新写法，视需要选择  <a href="https://github.com/brickspert/blog/issues/3">灵感来源</a>
+①使用<code class="highlighter-rouge">wiithRouter</code>， 并将<code class="highlighter-rouge">selectedKeys</code> 设为当前<code class="highlighter-rouge">window.location.pathname</code>值</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">...</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">withRouter</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">react-router-dom</span><span class="dl">'</span>
+<span class="p">...</span>
+<span class="kd">class</span> <span class="nx">NavWrapper</span> <span class="kd">extends</span> <span class="nx">Component</span> <span class="p">{</span>
+	<span class="kd">const</span> <span class="nx">path</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">pathname</span><span class="p">;</span>
+<span class="p">...</span>
+                <span class="o">&lt;</span><span class="nx">Menu</span> 
+                    <span class="nx">theme</span><span class="o">=</span><span class="dl">"</span><span class="s2">light</span><span class="dl">"</span> 
+                    <span class="nx">mode</span><span class="o">=</span><span class="dl">"</span><span class="s2">horizontal</span><span class="dl">"</span> 
+                    <span class="nx">defaultSelectedKeys</span><span class="o">=</span><span class="p">{</span><span class="nx">USER_MENU_LIST</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">name</span><span class="p">}</span>
+                    <span class="nx">selectedKeys</span><span class="o">=</span><span class="p">{[</span><span class="nx">path</span><span class="p">]}</span>
+                <span class="o">&gt;</span>
+                    <span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">currUser</span><span class="p">.</span><span class="nx">type</span> <span class="o">&amp;&amp;</span> <span class="nx">ADMIN_MENU_LIST</span><span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">item</span><span class="p">)</span> <span class="o">=&gt;</span>
+                        <span class="o">&lt;</span><span class="nx">Menu</span><span class="p">.</span><span class="nx">Item</span> <span class="nx">key</span><span class="o">=</span><span class="p">{</span><span class="nx">item</span><span class="p">.</span><span class="nx">path</span><span class="p">}</span><span class="o">&gt;</span>
+                            <span class="o">&lt;</span><span class="nx">NavLink</span> <span class="nx">to</span><span class="o">=</span><span class="p">{</span><span class="nx">item</span><span class="p">.</span><span class="nx">path</span><span class="p">}</span><span class="o">&gt;</span>
+                                <span class="o">&lt;</span><span class="nx">span</span><span class="o">&gt;</span><span class="p">{</span><span class="nx">item</span><span class="p">.</span><span class="nx">name</span><span class="p">}</span><span class="o">&lt;</span><span class="sr">/span</span><span class="err">&gt;
+</span>                            <span class="o">&lt;</span><span class="sr">/NavLink</span><span class="err">&gt;
+</span>                        <span class="o">&lt;</span><span class="sr">/Menu.Item</span><span class="err">&gt;
+</span>                    <span class="p">)}</span>
+                <span class="o">&lt;</span><span class="sr">/Menu</span><span class="err">&gt;
+</span><span class="p">...</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">withRouter</span><span class="p">(</span><span class="nx">NavWrapper</span><span class="p">)</span>
+</code></pre></div></div>
+<p>②使用 HashRouter</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">...</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">Switch</span><span class="p">,</span> <span class="nx">Route</span><span class="p">,</span> <span class="nx">HashRouter</span> <span class="k">as</span> <span class="nx">Router</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">react-router-dom</span><span class="dl">'</span>
+
+<span class="p">...</span>
+<span class="kd">function</span> <span class="nx">App</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">(</span>
+    <span class="o">&lt;</span><span class="nx">Router</span><span class="o">&gt;</span>
+      <span class="o">&lt;</span><span class="nx">NavWrapper</span> <span class="o">/&gt;</span>
+	  <span class="o">&lt;</span><span class="nx">ContentWrapper</span><span class="o">&gt;</span>
+    	<span class="o">&lt;</span><span class="nx">Switch</span><span class="o">&gt;</span>
+          <span class="o">&lt;</span><span class="nx">Route</span> <span class="nx">path</span><span class="o">=</span><span class="dl">'</span><span class="s1">/admin</span><span class="dl">'</span> <span class="nx">exact</span> <span class="nx">component</span><span class="o">=</span><span class="p">{</span><span class="nx">loadable</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="k">import</span><span class="p">(</span><span class="dl">'</span><span class="s1">./app/admin/health</span><span class="dl">'</span><span class="p">))}</span> <span class="sr">/</span><span class="err">&gt;
+</span>            <span class="p">...</span>
+        <span class="o">&lt;</span><span class="sr">/Switch</span><span class="err">&gt;
+</span>      <span class="o">&lt;</span><span class="sr">/ContentWrapper</span><span class="err">&gt;
+</span>    <span class="o">&lt;</span><span class="sr">/Router</span><span class="err">&gt;
+</span>  <span class="p">);</span>
+<span class="p">}</span>
+<span class="p">...</span>
+</code></pre></div></div>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">createHashHistory</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">history</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">createHashHistory</span><span class="p">();</span>
+</code></pre></div></div>
+:ET

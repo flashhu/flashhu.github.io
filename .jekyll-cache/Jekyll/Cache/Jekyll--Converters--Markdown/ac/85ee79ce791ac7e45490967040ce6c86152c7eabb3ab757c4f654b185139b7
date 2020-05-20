@@ -1,0 +1,58 @@
+I"_<h3 id="情景">情景</h3>
+<p><strong>示例一</strong></p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//正常调用</span>
+<span class="kd">function</span> <span class="nx">getData</span><span class="p">()</span> <span class="p">{</span>
+	<span class="p">...</span>	
+<span class="p">}</span>
+
+<span class="nb">window</span><span class="p">.</span><span class="nx">onload</span> <span class="o">=</span> <span class="nx">getData</span><span class="p">;</span>
+</code></pre></div></div>
+<p>嗯？<code class="highlighter-rouge">getData</code>不是一个函数吗？
+参照<a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Functions">MDN</a>中的例子，不是应该用<code class="highlighter-rouge">getData()</code>这样的形式调用函数？</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//正常调用</span>
+<span class="kd">function</span> <span class="nx">getData</span><span class="p">()</span> <span class="p">{</span>
+	<span class="p">...</span>	
+<span class="p">}</span>
+
+<span class="c1">//modify</span>
+<span class="nb">window</span><span class="p">.</span><span class="nx">onload</span> <span class="o">=</span> <span class="nx">getData</span><span class="p">();</span>
+</code></pre></div></div>
+
+<p><strong>示例二</strong></p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//正常调用</span>
+<span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="dl">"</span><span class="s2">box</span><span class="dl">"</span><span class="p">).</span><span class="nx">onclick</span> <span class="o">=</span> <span class="nx">handleClick</span><span class="p">;</span>
+
+<span class="kd">function</span> <span class="nx">handleClick</span><span class="p">(){</span>
+	<span class="p">...</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//不报错，函数执行有异常</span>
+<span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="dl">"</span><span class="s2">box</span><span class="dl">"</span><span class="p">).</span><span class="nx">onclick</span> <span class="o">=</span> <span class="nx">handleClick</span><span class="p">();</span>
+
+<span class="kd">function</span> <span class="nx">handleClick</span><span class="p">(){</span>
+	<span class="p">...</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><em>？？？</em>
+***</p>
+<h3 id="原因分析">原因分析</h3>
+<p>仔细查看会发现，上述示例调用函数的形式均为<code class="highlighter-rouge">obj.event=func</code>
+而我们印象中函数调用的一般形式为<code class="highlighter-rouge">func()</code></p>
+
+<p><strong>? 为什么示例一加括号后也能正常运行呢</strong>
+<a href="https://stackoverflow.com/questions/8830074/what-is-the-different-between-window-onload-init-and-window-onload-init/8830126#8830126">What is the different between window.onload = init(); and window.onload = init;</a></p>
+<ul>
+  <li><code class="highlighter-rouge">window.onload = getData()</code>表示马上执行<code class="highlighter-rouge">getData</code>函数，结果赋予<code class="highlighter-rouge">qindow.onload</code></li>
+  <li><code class="highlighter-rouge">window.onload = getData</code>表示当<code class="highlighter-rouge">onload</code>事件被触发时，执行<code class="highlighter-rouge">getData</code>函数</li>
+</ul>
+
+<p>示例代码产生了示例一前后都可以正常运行，示例二前后会发生异常的错觉，主要原因在事件不一样
+***</p>
+<h3 id="总结">总结</h3>
+<ul>
+  <li>一般情况下，函数调用形式为<code class="highlighter-rouge">func()</code>  <a href="https://www.w3school.com.cn/js/js_function_invocation.asp">JavaScript 函数调用</a></li>
+  <li>当将函数分配给某一对象的具体属性时，注意区分<code class="highlighter-rouge">func()</code>，以及<code class="highlighter-rouge">func</code>。当使用场景为发生某一事件执行函数时，使用<code class="highlighter-rouge">func</code></li>
+</ul>
+:ET

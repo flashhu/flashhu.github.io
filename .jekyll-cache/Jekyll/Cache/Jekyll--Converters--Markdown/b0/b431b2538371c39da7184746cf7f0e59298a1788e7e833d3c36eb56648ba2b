@@ -1,0 +1,48 @@
+I"�<h4 id="需求描述">需求描述</h4>
+<ol>
+  <li>输入为数字，显示单位</li>
+  <li>标注哪些为必填项</li>
+  <li>数字校验
+***
+    <h4 id="效果图">效果图</h4>
+    <p><img src="/img/in-post/inputnumber-unit/1.png" alt="图例" />
+***</p>
+    <h4 id="实践过程">实践过程</h4>
+  </li>
+  <li>输入数字，使用<code class="highlighter-rouge">&lt;InputNumber&gt;</code>比使用<code class="highlighter-rouge">&lt;Input&gt;</code>更不容易出现奇奇怪怪的问题</li>
+  <li>参照<a href="https://blog.csdn.net/qq_40593656/article/details/105077269">v3中的写法</a>，如需在<code class="highlighter-rouge">&lt;InputNumber&gt;</code>后加入元素，需要拿标签包裹</li>
+  <li>直接套用v3中的写法，会出现如下报错：
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Warning: [antd: Form.Item] `children` is array of render props cannot have `name`.
+</code></pre></div>    </div>
+    <p>(报错这玩意儿 总有前人会遇到的)  <a href="https://gitter.im/ant-design/ant-design-english?at=5e5dd8b97fef7f2e89995311">传送门</a>
+<img src="/img/in-post/inputnumber-unit/2.png" alt="图例" />
+真相只有一个！！ 看antd的<a href="https://ant.design/components/form-cn/#components-form-demo-complex-form-control">文档描述</a>
+输入组件需要直接包裹才能绑定表单，实现上述需求可以使用内嵌的<code class="highlighter-rouge">&lt;Form.Item&gt;</code>实现
+***</p>
+    <h4 id="相关代码">相关代码</h4>
+    <p>```html</p>
+  </li>
+</ol>
+<p>&lt;Form {…layout} ref={this.formRef}&gt;
+    <Form.Item label="体温" required="">
+        &lt;Form.Item 
+            name="temp"
+            rules={[{ required: true,  message: '请输入体温！' }]}
+            noStyle
+        &gt;
+            &lt;InputNumber min={35} max={45} step={0.1} /&gt;
+        </Form.Item>
+        <span classname="ant-form-text">°C</span>
+    &lt;/Form.Item&gt;
+    <Form.Item label="心率">
+        <Form.Item name="heartrat" noStyle="">
+            &lt;InputNumber min={20} max={300} /&gt;
+        </Form.Item>
+        <span classname="ant-form-text">bmp</span>
+    </Form.Item>
+    …
+&lt;/Form&gt;
+```</p>
+
+<p>收工！</p>
+:ET

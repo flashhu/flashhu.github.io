@@ -1,0 +1,108 @@
+I"�&<h3 id="情况描述">情况描述</h3>
+
+<p>MySQL数据库中存储的为<code class="highlighter-rouge">Date</code>类型的数据，数据取出后，时间变为<code class="highlighter-rouge">2017-09-02T16:00:00.000Z</code>。后端(node)返回给前端的数据与实际数据相差八小时。如果直接截取字符串，就会出现和实际数据相差一天的魔幻情况
+<img src="/img/in-post/eight-hours/data.png" alt="图例" /></p>
+
+<hr />
+<h3 id="原因分析">原因分析</h3>
+<h4 id="t-z分别表示什么意思">T， Z分别表示什么意思?</h4>
+<p>T，分隔时间和日期，没有特殊含义
+Z，表示为零时区时间</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; new Date('2017-09-02T16:00:00.000Z')
+  Sun Sep 03 2017 00:00:00 GMT+0800 (中国标准时间)
+</code></pre></div></div>
+<h4 id="哪个环节的时间出了问题">哪个环节的时间出了问题?</h4>
+<p>首先了解<code class="highlighter-rouge">DATE</code>, <code class="highlighter-rouge">DATETIME</code>,<code class="highlighter-rouge">TIMESTAMP</code>三种类型的处理方式</p>
+<blockquote>
+  <p>MySQL将TIMESTAMP值从当前时区转换为UTC进行存储，然后从UTC返回当前时区进行检索。（对于其他类型，例如DATETIME。不会发生这种情况。）默认情况下，每个连接的当前时区是服务器的时间。
+来源:MySQL 8.0参考手册
+见下方参考链接1</p>
+</blockquote>
+
+<p>官方文档中的描述，并没有解释<code class="highlighter-rouge">DATE</code>类型出现这种问题的原因</p>
+<blockquote>
+
+  <p>In mysql, DATE and DATETIME are stored as simple strings. They are also sent and received as strings, without any regard for timezones.
+The mysql package, however, will by default try to convert these types into Date objects. This is pretty much just wrong since DATETIME and DATE don’t have timezones, whereas Date objects do.
+来源：见下方参考链接2</p>
+</blockquote>
+
+<p>MySQL包会默认尝试将<code class="highlighter-rouge">DATE</code>,<code class="highlighter-rouge">DATETIME</code>数据类型转换为<code class="highlighter-rouge">DATE</code>对象，而<code class="highlighter-rouge">DATE</code>对象会考虑时区
+<img src="/img/in-post/eight-hours/query.png" alt="图例" />
+使用<code class="highlighter-rouge">SHOW VARIABLES LIKE "%time_zone%";</code>后，可以查看当前有关时区的设置
+服务器时区设置会影响结果，只有时区设置保持不变，才会得到正确的日期
+***</p>
+<h3 id="解决办法">解决办法</h3>
+<h4 id="路线一后天改造">路线一：后天改造</h4>
+<p>问题转换为怎么把“2017-09-02T16:00:00.000Z”变成”2017-09-03”</p>
+<h5 id="使用date对象的tolocaledatestring方法">①使用<code class="highlighter-rouge">Date</code>对象的<code class="highlighter-rouge">toLocaleDateString()</code>方法</h5>
+<p>如果为字符串，先转换为对象，调用方法，之后重新赋值即可。以下为示例代码。</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">date1</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">2019-03-09T16:00:00.000Z</span><span class="dl">'</span><span class="p">;</span>
+<span class="kd">let</span> <span class="nx">date2</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="nx">date1</span><span class="p">);</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">typeof</span><span class="p">(</span><span class="nx">date2</span><span class="p">));</span> <span class="c1">//对Date对象进行操作</span>
+<span class="kd">let</span> <span class="nx">date3</span> <span class="o">=</span> <span class="nx">date2</span><span class="p">.</span><span class="nx">toLocaleDateString</span><span class="p">();</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">date2</span><span class="p">,</span> <span class="nx">date3</span><span class="p">);</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>//结果
+object
+2019-03-09T16:00:00.000Z 2019-3-10
+</code></pre></div></div>
+<h5 id="使用momentjs">②使用moment.js</h5>
+<p>前端，后端都可以处理
+<strong>前端</strong></p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm install moment //安装
+</code></pre></div></div>
+<p>示例代码</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">term</span> <span class="o">=</span> <span class="nx">re</span><span class="p">.</span><span class="nx">term</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">before:</span><span class="dl">'</span><span class="p">,</span> <span class="nx">term</span><span class="p">);</span>
+<span class="nx">term</span><span class="p">.</span><span class="nx">sdate</span> <span class="o">=</span> <span class="nx">moment</span><span class="p">(</span><span class="nx">term</span><span class="p">.</span><span class="nx">sdate</span><span class="p">).</span><span class="nx">format</span><span class="p">(</span><span class="dl">"</span><span class="s2">YYYY-MM-DD</span><span class="dl">"</span><span class="p">);</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">after</span><span class="dl">'</span><span class="p">,</span> <span class="nx">term</span><span class="p">);</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>//结果
+before: {sdate: "2017-09-02T16:00:00.000Z"}
+after {sdate: "2017-09-03"}
+</code></pre></div></div>
+<p><strong>后端</strong></p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>node install moment --save //安装
+</code></pre></div></div>
+<p>使用方法，参照前端代码</p>
+
+<h4 id="路线二先天改造">路线二：先天改造</h4>
+<p>问题转换为怎么阻止出现“2017-09-02T16:00:00.000Z”</p>
+<h5 id="设置datetime和date以字符串返回">①设置<code class="highlighter-rouge">DATETIME</code>和<code class="highlighter-rouge">DATE</code>以字符串返回</h5>
+<p>在设置数据库的部分，加入<code class="highlighter-rouge">dateString</code></p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">config</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+    <span class="na">dateStrings</span><span class="p">:</span> <span class="p">[</span>
+        <span class="dl">'</span><span class="s1">DATE</span><span class="dl">'</span><span class="p">,</span>
+        <span class="dl">'</span><span class="s1">DATETIME</span><span class="dl">'</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+<span class="kd">let</span> <span class="nx">pool</span> <span class="o">=</span> <span class="nx">mysql</span><span class="p">.</span><span class="nx">createPool</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span>
+</code></pre></div></div>
+<h5 id="设置系统区时">②设置系统区时</h5>
+<p>linux系统的话，将系统区时设置到中国上海。具体方法参见<a href="https://blog.csdn.net/Architect_CSDN/article/details/93324225">后端 Date 时间 传到前端，相差8小时</a>原因二部分。
+Window吗？….你说啥？我信号不好…
+此方法未实验成功，欢迎补充！orz
+***</p>
+<h3 id="总结">总结</h3>
+<p>如果考虑时区，使用<code class="highlighter-rouge">TIMESTAMP</code>类型；如果不考虑，使用<code class="highlighter-rouge">VARCHAR</code>类型
+使用<code class="highlighter-rouge">DATE</code>，<code class="highlighter-rouge">DATETIME</code>类型使用时，小心类型转换的情况</p>
+
+<p><code class="highlighter-rouge">TIMESTAMP</code>， <code class="highlighter-rouge">DATETIME</code>类型的比较对比参见 <a href="https://segmentfault.com/a/1190000004292140#item-2-3">关于“时间”的一次探索</a>
+***</p>
+<h3 id="写在最后">写在最后</h3>
+<p>这问题出现之后，采用路线一种的思维，解决so easy，不用花太久时间，但是一仔细想原因，琢磨了很久（菜是原罪orz）。也不知道有没有想这么久的必要，希望能帮助到苦恼这个问题的人！在解决的同时想明白真的非常开心 哈哈哈！</p>
+
+<hr />
+<h3 id="参考文章">参考文章</h3>
+<p>①原因理解（建议按顺序浏览）
+1.<a href="https://dev.mysql.com/doc/refman/8.0/en/datetime.html">11.2.2 DATE，DATETIME和TIMESTAMP类型</a>
+2.<a href="https://medium.com/@magnusjt/gotcha-timezones-in-nodejs-and-mysql-b39e418c9d3">Gotcha! Timezones in nodejs and mysql</a>  强烈推荐！！
+3.<a href="https://segmentfault.com/a/1190000004292140#item-2-3">关于“时间”的一次探索</a>
+②解决办法
+4.<a href="https://blog.csdn.net/Architect_CSDN/article/details/93324225">后端 Date 时间 传到前端，相差8小时</a>
+5.<a href="https://blog.csdn.net/hongweigg/article/details/50385113">JavaScript UTC时间转换</a>
+6.<a href="https://www.w3school.com.cn/jsref/jsref_obj_date.asp">JavaScript Date 对象</a>
+7.<a href="https://blog.csdn.net/m0_37805167/article/details/99842368">node请求mysql数据库，时间差八个小时问题</a></p>
+:ET
