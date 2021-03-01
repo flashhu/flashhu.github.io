@@ -1,8 +1,17 @@
-> 并不只为面试题，更是知识梳理
+> 知识是有关联的 ：）
 
-## 一、基本概念
+## 一、数据类型
 
-### 1. `null` 和 `undefined` 啥区别
+### 1. 基础类型有哪些
+
+> ES5：5 + 1；ES6 / ES2015：6 + 1；ES10：7 + 1
+
+在 ES5 中，基础数据类型有 `boolean`，`null`，`undefined`，`number`，`string`
+ES6 新增了 `symbol`，ES10 新增 `BigInt`
+
+
+
+### 2. `null` 和 `undefined` 啥区别
 
 [undefined与null的区别](http://www.ruanyifeng.com/blog/2014/03/undefined-vs-null.html)
 
@@ -56,42 +65,285 @@ null === undefined
 
 
 
-### 2. `null` 是不是对象
-
- `null` 不是对象。
-
-`typeof null` 得到的返回值为 `object`是由于对象在底层用二进制表示，二进制前三位都为0的话会被判断为 `object` 类型。而 `null` 的二进制表示为全0，所以被误判为 `object`。
-
-
-
-### 3. 基础类型有哪些
-
-> ES5：5 + 1；ES6 / ES2015：6 + 1；ES10：7 + 1
-
-在 ES5 中，基础数据类型有 `boolean`，`null`，`undefined`，`number`，`string`
-ES6 新增了 `symbol`，ES10 新增 `BigInt`
-
-
-
-### 4. 说说 `symbol` 
+### 3. 说说 `symbol`  ？
 
 [MDN - Symbol](https://developer.mozilla.org/zh-CN/docs/Glossary/Symbol)
 
 [ECMAScript 6 入门 - Symbol](https://es6.ruanyifeng.com/#docs/symbol)
 
-主要是为防止对象中属性名冲突
+[现代 JavaScript 教程 - Symbol](https://zh.javascript.info/symbol)
+
+原有对象属性名只能是 `string` 类型时，容易出现**标识符冲突**，造成造成意外访问或重写；
+
+而 `symbol` 的值是**唯一**的，可以作为对象的属性名，避免上述情况；
+
+```javascript
+Symbol() === Symbol()
+// false
+```
+
+我们可以通过调用 **`Symbol()`** 函数创建，函数中可以选择传入描述，也可称为 `key`；
+
+```javascript
+var sym1 = Symbol();
+var sym2 = Symbol('test');
+console.log(sym1, sym2); // Symbol() Symbol(test)
+```
+
+需要注意的是，`symbol` 类型的值**不可以使用 `new`**  运算符来创建，因为 `Symbol` 函数返回的为 symbol 值，非对象，会抛出`TypeError`，提示此时非构造函数；
+
+> 待解决疑问：`new` 调用构造函数时，如返回值不是对象但为基本类型，不是会忽略返回值吗？为何此处抛出错误？
+
+同时，`symbol` 类型作为属性名时，该属性是**匿名，不可枚举**的。
+
+因此，它不会在 `for...in`、`for...of` 等循环中出现，也不会通过`Object.keys()`、`Object.getOwnPropertyNames()`、`JSON.stringify()` 返回；
+
+作为对象的属性名使用时，可以使用 **`Object.getOwnPropertySymbols`** 取到
+
+```javascript
+var obj = {
+    a: 1,
+    [Symbol('b')]: 2
+}
+
+for (let i in obj) {
+    console.log(i); // a
+}
+
+console.log(Object.keys(obj)) // [ 'a' ]
+console.log(Object.getOwnPropertyNames(obj))  // [ 'a' ]
+console.log(Object.getOwnPropertySymbols(obj)) // [ Symbol(b) ]
+```
+
+`symbol` 还提供了 `Symbol.for(key)`，`Symbol.keyFor(sym)` 方法，可用于使用同一 `symbol` 值。
+
+ **`Symbol.for()`** 方法，根据传入值，在全局环境中先查找是否已存在，如未存在，则新建一个值；
+
+**`Symbol.keyFor(sym)`** 方法，可以获取某一值对应的 `key` 描述
+
+```javascript
+let sym1 = Symbol.for('day')
+
+function f(sym) {
+    let sym2 = Symbol.for('day')
+    return sym === sym2
+}
+
+console.log(f(sym1), Symbol.keyFor(sym1))
+// true day
+```
 
 
 
-### 5. 聊聊 `BigInt` 
+### 4. 聊聊 `BigInt` 
+
+[tc39 - BigInt](https://tc39.es/proposal-bigint/)
 
 
 
-### 6. 类型转换
+### 5. 类型判断的方法
+
+[JavaScript专题之类型判断(上)](https://github.com/mqyqingfeng/Blog/issues/28)
+
+[判断数据类型的那些坑](https://zhuanlan.zhihu.com/p/26061496)
+
+[javascript中的类型判断](https://zhuanlan.zhihu.com/p/38249035)
+
+[极客时间-重学前端](https://time.geekbang.org/column/article/78884)
+
+通常，在判断自定义类时，使用`instanceof`；
+
+其余情况使用`Object.prototype.toString` 解决。
+
+类型判断的方式主要有四种：
+
+**typeof**
+
+> typeof 是一元操作符，放在其单个操作数的前面，操作数可以是任意类型。返回值为表示操作数类型的一个字符串。
+
+注意 `typeof` 对 `null` 的返回值为 `object`，对函数的返回值为 `function`
+
+对于`Array` 等对象子类型，返回 `object`
+
+因此，**`typeof` 适合用于除 `null` 和对象外的类型判断**
+
+![typeof 表格](https://static001.geekbang.org/resource/image/ec/6b/ec4299a73fb84c732efcd360fed6e16b.png)
+
+**instanceof**
+
+> instanceof 运算符用来测试一个对象在其原型链中是否存在一个构造函数的 prototype 属性。
+
+**`instanceof` 适合用于对对象子类型进行有预期的类型判断（是不是某一类的实例）**
+
+```javascript
+console.log([1, 2] instanceof Array) // true
+console.log(new Date() instanceof Date) // true
+console.log(function(){} instanceof Function) // true
+console.log(1 instanceof Number) // false
+console.log(new Number(1) instanceof Number) // true
+```
+
+**constructor**
+
+`constructor` 属性，会返回实例对象的原型上构造函数的引用。该属性值是函数本身。
+
+`constructor` 可以手动修改，所以**不可靠且不稳定**，不推荐使用
+
+如为基础数据类型，会调用它们对应的构造函数，如 `Number`。
+
+如为 `null`，`undefined`，会抛出 `TypeError`，提示没有对应的构造函数
+
+**`constructor` 适合用于除 `null` 和 `undefined` 外的类型判断**
+
+```javascript
+console.log((3).constructor === Number) // true
+console.log(true.constructor === Boolean) // true
+console.log('abc'.constructor === String) // true
+console.log((new Number(3)).constructor === Number) // true
+console.log((new Boolean(true)).constructor === Boolean) // true
+console.log((new String('abc')).constructor === String) // true
+```
+
+**Object.prototype.toString**
+
+`toString()` 方法返回一个表示该对象的字符串。
+
+**`Object.prototype.toString` 适合用于内置类型的类型判断**
 
 
 
-### 7. 关键字/保留字
+### 6. `null` 是不是对象
+
+ `null` 不是对象。
+
+> 在 JavaScript 最初的实现中，JavaScript 中的值是由一个表示类型的标签和实际数据值表示的。对象的类型标签是 0。由于 `null` 代表的是空指针（大多数平台下值为 0x00），因此，null 的类型标签是 0，`typeof null` 也因此返回 `"object"`。     —— [MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/typeof#typeof_null)
+
+`typeof null` 得到的返回值为 `object`是由于：
+
+`typeof` 根据类型标签判断，对象的类型标签为 `000`
+
+而 `null` 的机器码全为0，刚好符合对象的判断规则，所以被误判为 `object`。
+
+
+
+### 7. `typeof (function() {})` 为什么不为 `object`
+
+[ECMA262 - The `typeof` Operator](https://tc39.es/ecma262/#sec-typeof-operator)
+
+函数是对象的子类型，`typeof` 的返回值主要和其判断逻辑有关
+
+根据标准可知，当对象中包含 `[[Call]]` 时，判断为 `function`，如未包含，则返回 `object`
+
+函数包含`[[call]]` 属性，所以它是可调用的，即使是使用 `new` 运算符新建的函数也具有该属性
+
+
+
+### 8. 类型转换
+
+[JavaScript 深入之头疼的类型转换(上) ](https://github.com/mqyqingfeng/Blog/issues/159)
+
+[JavaScript深入之头疼的类型转换(下)](https://github.com/mqyqingfeng/Blog/issues/164)
+
+[极客时间-重学前端](https://time.geekbang.org/column/article/78884)
+
+![example](https://cdn.nlark.com/yuque/0/2020/jpeg/451516/1587482732974-24a1fa63-3099-4019-b280-63406bf95fc2.jpeg)
+
+**转为 Boolean**
+
+如果省略或值`0`，`-0`，[`null`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/null)，`false`，[`NaN`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/NaN)，[`undefined`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/undefined)，或空字符串（`""`），该对象具有的初始值`false`。
+
+其他均为 `true`，易混淆的如`{}`，`[]`，`"false"`
+
+```javascript
+console.log(Boolean()) // false
+console.log(Boolean(0)) // false
+console.log(Boolean(-0)) // false
+console.log(Boolean(NaN)) // false
+console.log(Boolean(null)) // false
+console.log(Boolean(undefined)) // false
+console.log(Boolean("")) // false
+console.log(Boolean(false)) // false
+console.log(Boolean([])) // true
+console.log(Boolean({})) // true
+console.log(Boolean("false")) // true
+```
+
+**转为 Number**
+
+`null` 会转为 0， `undefined` 会转为 NaN
+
+字符串转换时，首先会忽略前导空格及前导0，尝试转换为整数或浮点数，如确定非数字，则结果为 NaN
+
+`symbol` 类型不能转换为数字，会抛出`TypeError`，提示不能进行转换
+
+```javascript
+console.log(Number()) // +0
+console.log(Number(null)) // +0
+console.log(Number(undefined)) // NaN
+console.log(Number(true)) // 1
+console.log(Number(false)) // +0
+console.log(Number("0")) // +0
+console.log(Number("-123")) // -123
+console.log(Number("1.2")) // 1.2
+console.log(Number("000123")) // 123
+console.log(Number("   123")) // 123
+console.log(Number("0x11")) // 17
+console.log(Number("0o11")) // 9
+console.log(Number("0b11")) // 3
+console.log(Number("")) // +0
+console.log(Number(" ")) // +0
+console.log(Number("123 123")) // NaN
+console.log(Number("foo")) // NaN
+```
+
+**转为字符**
+
+`null`，`undefined` 值转换后，转为类型名称的字符串形式
+
+布尔类型转换为对应的`"false"`，`"true"`
+
+数字转字符较复杂，常见项基本为转换成数字字符串
+
+`symbol` 类型不能转换为字符，会抛出`TypeError`，提示不能进行转换
+
+```javascript
+console.log(String()) // 
+console.log(String(null)) // null
+console.log(String(undefined)) // undefined
+console.log(String(false)) // false
+console.log(String(true)) // true
+console.log(String(0)) // 0
+console.log(String(-0)) // 0
+console.log(String(NaN)) // NaN
+console.log(String(Infinity)) // Infinity
+console.log(String(-Infinity)) // -Infinity
+console.log(String(1)) // 1
+```
+
+**转为 object**
+
+>  装箱操作，把基本类型转换为对应的对象
+
+`null`，`undefined` 类型不能转换为字符，会抛出`TypeError`
+
+原始值调用 String()、Number() 或者 Boolean() 构造函数即可
+
+`symbol` 类型的转换可以通过 `call` 方法来强迫产生装箱，或使用内置的 `Object` 函数显式调用
+
+```javascript
+var symObj1 = (function () { return this; }).call(Symbol("a"))
+var symObj2 = Object(Symbol('a'))
+console.log(symObj1, symObj2) 
+// [Symbol: Symbol(a)] [Symbol: Symbol(a)]
+```
+
+**object 转为各类值**
+
+> 拆箱操作，把对象转换为对应的基本类型
+
+所有对象转为布尔类型，均为 `true`
+
+
 
 
 
@@ -289,25 +541,203 @@ for (var i = 0; i < 3; j++) {
 
 ## 五、this
 
-### new 原理
+> **在一个方法调用中，`this` 始终是点符号 `.` 前面的对象**
+
+### 1. new 原理
+
+[JavaScript深入之new的模拟实现](https://github.com/mqyqingfeng/Blog/issues/13)
+
+[用new实例化一个对象时，this指针的绑定--读《JavaScript语言精粹》P47疑惑](https://segmentfault.com/q/1010000007373629/a-1020000007373771#)
+
+`new` 运算符将调用构造函数，返回对应对象类型的实例，并会将 `this` 绑定到新对象上；
+
+构造函数可以是内置对象提供的函数，或自定义的函数，通常自义定类型的构造函数会首字母大写。
+
+首先，它会创建一新对象；
+
+接着，将对象与构造函数的原型 `prototype` 建立连接；
+
+并且，改变函数 this 指向为新建对象；
+
+最后返回对象。
+
+如返回值为非对象类型的基本类型，那么会忽略这个返回值。
+
+```javascript
+function Test(params) {
+    this.x = 1;
+    return params;
+}
+
+var a = 2
+var tmp = new Test({ a: 1 })
+console.log(new Test('abc')) // Test  { x: 1 }
+console.log(tmp.a) // 1
+```
+
+[模拟 new 实现](handwrite/JavaScript-hw.md?id=_1-如何模拟-new)
 
 
 
 ## 六、对象
 
+1. Object
+
+   `Object.assign(target, ...sources)`
+
+   `Object.getPrototypeOf()`
+
+   `Object.getOwnPropertyDescriptors()`
+   
+   - [Object.keys(obj)](https://developer.mozilla.org/zh/docs/Web/JavaScript/Reference/Global_Objects/Object/keys) / [Object.values(obj)](https://developer.mozilla.org/zh/docs/Web/JavaScript/Reference/Global_Objects/Object/values) / [Object.entries(obj)](https://developer.mozilla.org/zh/docs/Web/JavaScript/Reference/Global_Objects/Object/entries) —— 返回一个可枚举的由自身的字符串属性名/值/键值对组成的数组。
+   - [Object.getOwnPropertySymbols(obj)](https://developer.mozilla.org/zh/docs/Web/JavaScript/Reference/Global_Objects/Object/getOwnPropertySymbols) —— 返回一个由自身所有的 symbol 类型的键组成的数组。
+- [Object.getOwnPropertyNames(obj)](https://developer.mozilla.org/zh/docs/Web/JavaScript/Reference/Global_Objects/Object/getOwnPropertyNames) —— 返回一个由自身所有的字符串键组成的数组。
+   - [obj.hasOwnProperty(key)](https://developer.mozilla.org/zh/docs/Web/JavaScript/Reference/Global_Objects/Object/hasOwnProperty)：如果 `obj` 拥有名为 `key` 的自身的属性（非继承而来的），则返回 `true`。
+
+
+
+
+### `new`  和 `Object.create()` 的区别
+
+**`Object.create()`**方法创建一个新对象，使用现有的对象来提供新创建的对象的_\_proto__
+
+```javascript
+function Fruit() {
+    this.type = 'fruit'
+}
+
+function Apple() {
+    this.name = 'apple'
+}
+
+// Apple.prototype = new Fruit()
+Apple.prototype = Object.create(Fruit.prototype);
+
+var a = new Apple()
+console.log(a instanceof Apple) // true
+console.log(a instanceof Fruit) // true 
+```
+
+
+
+
+
 ## 七、继承
 
 ## 八、原型
+
+> “JavaScript中的机制有一个核心区别，那就是不会进行复制，对象之间是通过内部的[[Prototype]]链关联的。”          ——《你不知道的 JavaScript》
+
+### 1. `prototype` ， `__proto__` ，`[[Prototype]]`区分
+
+[JavaScript深入之从原型到原型链](https://github.com/mqyqingfeng/Blog/issues/2)
+
+[现代 JavaScript 教程 - 原型继承](https://zh.javascript.info/prototype-inheritance)
+
+每个函数都有一个 `prototype` 属性，指向该构造函数将会创建的实例的原型，它的值为某一对象或 `null`；
+
+每一对象都有一个**隐藏**属性 `[[Prototype]]`，它的值为某一对象或 `null`；
+
+在函数被 `new` 运算符作为构造函数调用时，函数的 `prototype` 属性为新实例对象的 `[[Prototype]]` 赋值；
+
+`__proto__` 是 `[[Prototype]]` 的 getter/setter，是一种访问方式；
+
+`__proto__`  是受[历史原因](https://zh.javascript.info/prototype-methods#yuan-xing-jian-shi)影响的遗留物，实际使用过程中，更应选择使用`Object.getPrototypeOf` (ES6) 或 `Object.setPrototypeOf`  (ES6) 来 get/set 原型
+
+![prototype](../image/language/js-prototype.png)
+
+```javascript
+function User() { }
+const user = new User()
+console.log(User.prototype === user.__proto__) // true
+console.log(Object.getPrototypeOf(user) === User.prototype) // true
+console.log(User.prototype.constructor === User) // true
+```
+
+
+
+### 2. `constructor` 属性
+
+[JavaScript深入之从原型到原型链](https://github.com/mqyqingfeng/Blog/issues/2)
+
+[现代 JavaScript 教程 - F.prototype](https://zh.javascript.info/function-prototype)
+
+默认提供的 `prototype` 具有 `constructor` 属性，指向关联的构造函数。
+
+但需要注意的是，如果我们将 ``prototype`` 完全替换，会不再具有 ``constructor`` 属性。
+
+
+
+### 3. `__proto__` 的替代项
+
+- [Object.create(proto, [descriptors])](https://developer.mozilla.org/zh/docs/Web/JavaScript/Reference/Global_Objects/Object/create) —— 利用给定的 `proto` 作为 `[[Prototype]]` 和可选的属性描述来创建一个空对象。
+- [Object.getPrototypeOf(obj)](https://developer.mozilla.org/zh/docs/Web/JavaScript/Reference/Global_Objects/Object/getPrototypeOf) —— 返回对象 `obj` 的 `[[Prototype]]`。
+- [Object.setPrototypeOf(obj, proto)](https://developer.mozilla.org/zh/docs/Web/JavaScript/Reference/Global_Objects/Object/setPrototypeOf) —— 将对象 `obj` 的 `[[Prototype]]` 设置为 `proto`。
+
+
+
+### 4. `prototype` 与 `constructor` 取值上的区别
+
+`prototype` 的取值为构造函数的一个实例，如仅设为函数本身，会影响 `instanceof` 结果
+
+`constructor` 的取值为构造函数本身
+
+```javascript
+function Test() {
+    this.a = 1
+}
+
+var t = new Test()
+
+console.log(t, Test)
+// Test { a: 1 } [Function: Test]
+console.log(t.__proto__, Test.prototype)
+// Test {} Test {}
+console.log(t.__proto__.constructor, Test.prototype.constructor)
+// [Function: Test] [Function: Test]
+```
+
+
+
+### 5. `isPrototyoeOf` 和 `instanceof` 的区别
+
+> `object instanceof constructor`                —— [MDN - instanceof](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/instanceof)
+>
+> `prototypeObj.isPrototypeOf(object)`      —— [MDN - isPrototypeOf](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/object/isPrototypeOf)
+
+从定义上看，**`isPrototyoeOf`** 是检查原型**对象**是否存在与实例**对象**的原型链上；**`instanceof`** 检查**构造函数**的 `prototype` 属性指向的原型对象是否在实例**对象**的原型链上
+
+总的来说，`isPrototyoeOf` 判断是否**继承**自某对象，`instanceof` 判断是否是某构造函数的**实例**
+
+```javascript
+function Apple() {
+    this.name = 'apple'
+}
+
+var a = new Apple()
+console.log(a instanceof Apple) // true
+console.log(Apple.prototype.isPrototypeOf(a)) // true
+```
+
+
 
 ## 九、函数
 
 ### 1. 函数柯里化
 
+
+
 ## 十、追新
 
 ### 1. 常用的 ES6 特性
 
+[ES6 标准](https://262.ecma-international.org/6.0/)
+
+
+
 ### 2. 最近的新特性
+
+
 
 ## 十一、一些定义
 
