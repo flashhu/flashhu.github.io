@@ -2,6 +2,59 @@
 
 ## 一. 基础
 
+### 1. React Element 和 React Component 的区别
+
+* 在`React`中，`React.createElement()`的返回值为`React Element`
+
+  在[源码](https://github.com/facebook/react/blob/9198a5cec0936a21a5ba194a22fcbac03eba5d1d/packages/react/src/jsx/ReactJSXElementValidator.js#L66)中，`React Element` 的判断标准为 包含属性`$$typeof` 且值为 `REACT_ELEMENT_TYPE` 的对象
+
+* `React Component` 通常作为`React.createElement()`的第一个参数 `type` 传入。我们常使用类组件，函数组件来构建。区分是否为类组件，可使用实例原型上的方法判断
+
+```javascript
+class AppClass extends React.Component {
+  render() {
+    return <p>KaSong</p>
+  }
+}
+console.log('这是ClassComponent：', AppClass);
+console.log('这是Element：', <AppClass/>);
+            
+console.log(AppClass instanceof Function, AppFunc instanceof Function);
+// true true
+console.log(AppClass.prototype.isReactComponent);
+// {}  undefined
+
+// console
+这是ClassComponent：
+class AppClass extends React.Component {
+  render() {
+    return <p>KaSong</p>
+  }
+}
+这是Element：
+[object Object] {
+  $$typeof: [object Symbol] { ... },
+  _owner: null,
+  _store: [object Object] { ... },
+  key: null,
+  props: [object Object] { ... },
+  ref: null,
+  type: class AppClass {...}
+}
+}
+                      
+// 函数组件同理
+```
+
+### 2. JSX 与 Fiber 区别
+
+> 在组件`mount`时，`Reconciler`根据`JSX`描述的组件内容生成组件对应的`Fiber节点`。
+>
+> 在`update`时，`Reconciler`将`JSX`与`Fiber节点`保存的数据对比，生成组件对应的`Fiber节点`，并根据对比结果为`Fiber节点`打上`标记`。
+
+* JSX 为一种描述当前组件内容的数据结构
+* Fiber节点中包含组件 schedule, reconcile, renderer 所需的信息，如组件更新的优先级，state, 用于 renderer 的标记
+
 ### 虚拟DOM
 
 > **JS 和 DOM 之间的一个映射缓存**
