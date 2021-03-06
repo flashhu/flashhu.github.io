@@ -1,5 +1,6 @@
 - [攻略](archive.md)
 - 基础
+  - [CSS](language/CSS.md)
   - [JavaScript](language/JavaScript.md)
 - 深入
   - [JavaScript](handwrite/JavaScript-hw.md)
@@ -13,5 +14,5 @@
   - [基础](network/基础.md)
   - [HTTP](network/HTTP.md)
   - [从输入网址到页面显示](network/从输入网址.md)
-- LeetCode
+- 算法
   - [二叉树](leetcode/tree.md)
