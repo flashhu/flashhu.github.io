@@ -624,6 +624,8 @@ console.log(0 == "\n")
 console.log([] == 0)
 // 1. 右边为 false 2. 右边转为 0 3.左边转为 '' 4. 左边转为 0
 console.log([] == ![]) 
+// null == 0 不符合上述规则，返回 false
+console.log(null != 0) 
 // 全为 true
 ```
 
@@ -680,6 +682,18 @@ console.log([] == ![])
   ```
 
 ![stack-heap](../image/language/stack_heap.png)
+
+
+
+### 17. `str.charAt(index)` 和 `str[index]` 的区别
+
+* 当 index 的取值不在 str 的长度范围内时
+
+  `str[index]` 返回 `undefined`，`charAt(index)`放回空字符串；
+
+* `str[index]` 不兼容 ie6 - ie8，`charAt(index)`可以兼容
+
+* `str[index]` 不易区分变量的类型，是字符串还是数组
 
 
 
@@ -1129,6 +1143,26 @@ https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects
 * 活动对象是函数执行的时候被创建的对象
 
 
+
+## 十二、其他
+
+### 1. `encodeURIComponent` 和 `encodeURI` 的区别
+
+[encodeURIComponent - MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent)
+
+[encodeURI - MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/encodeURI)
+
+* 两个都会转义空格为 `%20`
+
+* 两个都不转义以下字符：
+
+  ```
+  A-Z a-z 0-9 - _ . ! ~ * ' ( )
+  ```
+
+* `encodeURI` 不会转义保留字符 `;,/?:@&=+$`，`encodeURIComponent` 会转义
+
+* `encodeURI` 不会转义 `#` ，`encodeURIComponent` 会转义为 `%23`
 
 
 
