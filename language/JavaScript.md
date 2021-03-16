@@ -1,10 +1,18 @@
 > 知识是有关联的 ：）
 
+> 《你不知道的 JS》
+>
+> 《JavaScript 高级程序设计》
+>
+> 《现代 JavaScript 教程》
+
+[ES2021](https://tc39.es/ecma262/2021/)
+
 ## 一、数据类型
 
 ### 1. 基础类型有哪些
 
-> ES5：5 + 1；ES6 / ES2015：6 + 1；ES10 / 2019：7 + 1
+> ES5：5 + 1；ES6 / ES2015：6 + 1；ES11 / 2020：7 + 1
 
 * 在 ES5 中，基础数据类型有 `boolean`，`null`，`undefined`，`number`，`string`
 * ES6 新增了 `symbol`
@@ -151,7 +159,7 @@ console.log(Object.getOwnPropertySymbols(obj)) // [ Symbol(b) ]
 
 `symbol` 还提供了 `Symbol.for(key)`，`Symbol.keyFor(sym)` 方法，可用于使用同一 `symbol` 值。
 
- **`Symbol.for()`** 方法，根据传入值，在全局环境中先查找是否已存在，如未存在，则新建一个值；
+ **`Symbol.for()`** 方法，根据传入值，在**全局环境**中先查找是否已存在，如未存在，则新建一个值；
 
 **`Symbol.keyFor(sym)`** 方法，可以获取某一值对应的 `key` 描述
 
@@ -206,11 +214,17 @@ console.log(BigInt(9999999999999999999999999998)) // 999999999999999958311973683
 
 [极客时间-重学前端](https://time.geekbang.org/column/article/78884)
 
-通常，在判断自定义类时，使用`instanceof`；
+#### 总结
 
-其余情况使用`Object.prototype.toString` 解决。
+`null`，`undefined` 直接使用严格相等 `===` 判断
 
-类型判断的方式主要有四种：
+非 `null`，`undefined` 的基本类型及函数使用 `typeof` 判断
+
+剩余内置类型使用 `Object.prototype.toString` 判断
+
+自定义类型使用`instanceof`
+
+
 
 #### typeof
 
@@ -240,6 +254,8 @@ obj.__proto__.__proto__ ... = Obj.prototype
 console.log([1, 2] instanceof Array) // true
 console.log(new Date() instanceof Date) // true
 console.log(1 instanceof Number) // false
+console.log(Symbol() instanceof Symbol) // false
+console.log(BigInt('111') instanceof BigInt) // false
 console.log(new Number(1) instanceof Number) // true
 ```
 
@@ -263,6 +279,11 @@ console.log([] instanceof MyArray); // true
 ```
 
 [模拟 instanceof 实现](handwrite/JavaScript-hw.md?id=_2-如何模拟instanceof)
+
+**缺点**
+
+instanceof操作符的问题在于，它假定只有一个全局环境。如果网页中包含多个框架，那实际上就存在两个以上不同的全局执行环境，从而存在两个以上不同版本的Array构造函数。
+ 如果你从一个框架向另一个框架传入一个数组，那么传入的数组与在第二个框架中原生创建的数组分别具有各自不同的构造函数。
 
 #### constructor
 
@@ -653,9 +674,11 @@ console.log(null != 0)
 
   带 p 改原数组，没带为浅拷贝（splice）
 
-  `Array.prototype.slice([begin[, end]])` 浅拷贝了原数组中元素的一新数组
+  `Array.prototype.slice([begin[, end]])` **浅拷贝**了原数组中元素的一新数组
 
   `Array.prototype.splice(start[, deleteCount[, item1[, item2[, ...]]]])` 删除/替换/添加元素
+  
+  `concat` 也为**浅拷贝**
 
 ![数组操作](../image/language/array-method.png)
 
@@ -699,7 +722,23 @@ console.log(null != 0)
 
 ## 二、作用域
 
-### 1. let, var 区别
+### 1. JS 作用域分为哪几类，作用域大小怎么定义？
+
+> 作用域是根据名称查找变量的一套规则
+>
+> 欺骗词法作用域的方法有：`eval`，`with`
+
+JavaScript 采用词法作用域模型，即作用域在写代码时进行静态确定，主要关注在何处声明
+
+JavaScript 中的作用域包含：
+
+* 全局作用域
+* 函数作用域：属于这个函数的全部变量都可以在整个函数的范围内使用及复用
+* 块级作用域：将变量绑定到所在的任意作用域中（通常是{ .. }内部）
+
+
+
+### 2. let, var 区别
 
 首先，从作用域角度看，`var` 声明的变量可以使用在**全局作用域以及函数作用域**中，而 `let` 声明的变量是限制在**块级作用域**中的。所以，在最程序顶部声明时，`var` 会**向全局对象添加属性**，`let` 不会。
 
@@ -709,7 +748,7 @@ console.log(null != 0)
 
 
 
-### 2. 何为提升
+### 3. 何为提升
 
 这里我认为可以分为广义和狭义理解
 
@@ -725,7 +764,7 @@ console.log(null != 0)
 
 
 
-### 3. 为什么需要块级作用域
+### 4. 为什么需要块级作用域
 
 [ECMAScript 6 入门](https://es6.ruanyifeng.com/#docs/let#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E5%9D%97%E7%BA%A7%E4%BD%9C%E7%94%A8%E5%9F%9F%EF%BC%9F)
 
@@ -772,7 +811,7 @@ for (let i = 0; i < 3; j++) {
 
 
 
-### 4. ES6 前如何使用块级作用域
+### 5. ES6 前如何使用块级作用域
 
 [MDN - with](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/with)
 
@@ -891,9 +930,108 @@ for (var i = 0; i < 3; j++) {
 
 ## 五、this
 
+[再来40道this面试题酸爽继续(1.2w字用手整理)](https://juejin.cn/post/6844904083707396109)
+
 > **在一个方法调用中，`this` 始终是点符号 `.` 前面的对象**
 
-### 1. new 原理
+> this 是执行上下文的一个属性，代表函数调用时函数使用的上下文
+>
+> this 不指向函数自身也不指向函数的词法作用域，完全取决于函数在哪里被调用
+
+### 1. 判断 this 绑定对象
+
+> 优先级依次降低，低优先级的修改方法无法修改高优先级
+
+1. **箭头函数**：继承外层函数调用的 this 绑定（同 ES6 前的 `self=this`）
+
+   由外层作用域决定，且指向函数定义时的 this
+
+   箭头函数的`this`是无法通过`bind、call、apply`来**直接**修改，但是可以通过改变作用域中`this`的指向来间接修改。
+
+   可作为实例方法，确保 `this` 总是指向类实例
+
+   * 避免以下使用方式
+     * 定义对象的方法 
+     * 定义原型的方法
+     * 定义构造函数
+     * 定义回调函数
+   * 字面量创建的对象，作用域是`window`，如果里面有箭头函数属性的话，`this`指向的是`window`
+
+2. **由 new 调用**：绑定到新创建的对象。
+
+   ```javascript
+   function Test1() {
+       this.a = 1;
+   }
+   
+   const Test2 = Test1.bind({a: 2})
+   const t1 = new Test1();
+   const t2 = new Test2();
+   
+   console.log(t1.a, t2.a); // 1 1
+   ```
+
+3. **由 bind 调用**：绑定到指定的对象。
+
+   一个绑定函数能使用new操作符创建对象
+
+   ```javascript
+   const test = {
+       x: 42,
+       getX: function () {
+           return this.x;
+       }
+   };
+   
+   const boundGetX = test.getX.bind(test);
+   const changeGetX = boundGetX.call({x: 1});
+   console.log(boundGetX(), changeGetX); // 42 42
+   ```
+
+4. **由 call 或者 apply 调用**：绑定到指定的对象。
+
+5. **由上下文对象调用**：绑定到那个上下文对象。
+
+   丢失this绑定（隐式丢失）的形式：函数别名；参数传递（隐式赋值）；回调函数等
+
+6. **默认**：在严格模式下绑定到undefined，否则绑定到全局对象。
+
+   可使用 `globalThis` 引用全局对象
+
+
+
+### 2. 箭头函数与普通函数区别
+
+[详解箭头函数和普通函数的区别以及箭头函数的注意事项、不适用场景](https://juejin.cn/post/6844903801799835655)
+
+> ES6 的箭头函数和以前的普通函数的区别；箭头函数可以作为构造函数吗
+
+**区别**
+
+* 箭头函数的 this 指向外层作用域，普通函数的 this 取决于在哪被调用，怎么调用
+* 
+
+
+
+### 3. call、apply、bind区别
+
+> [`call()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/call) 方法使用一个指定的 `this` 值和单独给出的一个或多个参数来调用一个函数。
+>
+> [`apply()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/apply) 方法调用一个具有给定`this`值的函数，以及以一个数组（或[类数组对象](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Indexed_collections#working_with_array-like_objects)）的形式提供的参数。
+>
+> [`bind()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/bind) 方法创建一个新的函数，在 `bind()` 被调用时，这个新函数的 `this` 被指定为 `bind()` 的第一个参数，而其余参数将作为新函数的参数，供调用时使用。
+
+都是改变函数内 `this` 指向，区别在于：
+
+* 使用`.call()`或者`.apply()`的函数是会直接执行的
+* `bind()`是创建一个新的函数，需要手动调用才会执行
+* `.call()`和`.apply()`用法基本类似，不过`call`接收若干个参数，而`apply`接收的是一个数组
+
+[模拟 call / apply / bind 实现](http://localhost:3000/#/handwrite/JavaScript-hw?id=%e4%ba%8c%e3%80%81this)
+
+
+
+### 2. new 原理
 
 [JavaScript深入之new的模拟实现](https://github.com/mqyqingfeng/Blog/issues/13)
 
@@ -948,8 +1086,6 @@ console.log(tmp.a) // 1
 
 ### 1. `new`  和 `Object.create()` 的区别 ？
 
-> 好家伙 这居然真是道面试题 
-
 [js继承实现之Object.create](https://segmentfault.com/a/1190000014592412)
 
 * `new` 运算符只接受构造函数；`Object.create` 除构造函数外，还可以接受普通对象，null
@@ -958,7 +1094,7 @@ console.log(tmp.a) // 1
 
 完整总结见：[JS 基础 | new 和 Object.create() 有什么区别](https://blog.csdn.net/qq_44537414/article/details/114401207)
 
-> 待解决疑问：`Object.create()` 创建的对象的 this 指向
+[模拟 Object.create 实现](handwrite/JavaScript-hw?id=_3-%e5%a6%82%e4%bd%95%e6%a8%a1%e6%8b%9f-objectcreate)
 
 
 
@@ -1103,7 +1239,60 @@ https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects
 
 
 
-## 十、追新
+## 十、深浅拷贝
+
+[第 4 期：深浅拷贝原理](https://github.com/yygmind/blog#%E7%AC%AC-4-%E6%9C%9F%E6%B7%B1%E6%B5%85%E6%8B%B7%E8%B4%9D%E5%8E%9F%E7%90%86)
+
+### 1. 深浅拷贝区别
+
+* 深拷贝会拷贝所有的属性，并拷贝属性指向的动态分配的内存。当对象和它所引用的对象一起拷贝时即发生深拷贝。深拷贝相比于浅拷贝速度较慢并且花销较大。拷贝前后两个对象互不影响。
+* 浅拷贝会创建一个新对象，这个对象有着原始对象属性值的一份精确拷贝。如果属性是基本类型，拷贝的就是基本类型的值，如果属性是引用类型，拷贝的就是内存地址 ，所以如果其中一个对象改变了这个地址，就会影响到另一个对象。
+
+| --     | 和原数据是否指向同一对象 | 第一层数据为基本数据类型     | 原数据中包含子对象           |
+| ------ | ------------------------ | ---------------------------- | ---------------------------- |
+| 赋值   | 是                       | 改变会使原数据一同改变       | 改变会使原数据一同改变       |
+| 浅拷贝 | 否                       | 改变**不**会使原数据一同改变 | 改变会使原数据一同改变       |
+| 深拷贝 | 否                       | 改变**不**会使原数据一同改变 | 改变**不**会使原数据一同改变 |
+
+
+
+### 2. 展开语法与 `Object.assign` 的区别
+
+[[译] Object.assign 和 Object Spread 之争, 用谁？](https://juejin.cn/post/6844903774620762120#heading-1)
+
+> 展开语法(Spread syntax), 可以在函数调用/数组构造时, 将数组表达式或者string在语法层面展开；还可以在构造字面量对象时, 将对象表达式按key-value的方式展开。  —— [MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Spread_syntax)
+
+> `Object.assign()` 方法用于将所有可枚举属性的值从一个或多个源对象分配到目标对象。它将返回目标对象。   —— [MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/assign)
+
+均为 **浅拷贝**。
+
+* `{... obj}` 等同于 `Object.assign（{}，obj）`
+* `Object.assign（）`修改了一个对象，因此它会触发 [ES6 setter](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/set)。使用时，需要保证第一个参数为 `{}`
+* 展开语法更符合 [immutable](https://facebook.github.io/immutable-js/) 的思想
+
+
+
+### 3. `JSON.parse(JSON.stringify(object))` 进行深拷贝的缺点
+
+```javascript
+var new_data = JSON.parse(JSON.stringify(data));
+```
+
+1、会忽略 `undefined`
+
+2、会忽略 `symbol`
+
+3、不能序列化函数
+
+4、不能解决循环引用的对象
+
+5、不能正确处理`new Date()`
+
+6、不能处理正则
+
+
+
+## 十一、追新
 
 ### 1. 常用的 ES6 特性
 
@@ -1115,7 +1304,15 @@ https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects
 
 
 
-## 十一、一些定义
+
+
+## 十二、AJAX
+
+[异步网络请求xhr、ajax、fetch与axios对比](https://juejin.cn/post/6844904058466074637)
+
+
+
+## 十三、一些定义
 
 ### 1. 为什么是解释型语言
 
@@ -1144,7 +1341,7 @@ https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects
 
 
 
-## 十二、其他
+## 十四、其他
 
 ### 1. `encodeURIComponent` 和 `encodeURI` 的区别
 
@@ -1166,7 +1363,6 @@ https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects
 
 
 
+### 2. 类数组对象
 
-
-
-
+[JavaScript深入之类数组对象与arguments](https://github.com/mqyqingfeng/Blog/issues/14)
