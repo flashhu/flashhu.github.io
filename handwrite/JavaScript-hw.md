@@ -2,7 +2,7 @@
 
 ## 一、对象
 
-### 1. 如何模拟 `new`
+### 1. `new`
 
 [JavaScript深入之new的模拟实现](https://github.com/mqyqingfeng/Blog/issues/13)
 
@@ -32,7 +32,7 @@ function myNew() {
 
 
 
-### 2. 如何模拟`instanceof`
+### 2. instanceof`
 
 [instanceOf原理，手写一个instanceOf?(快手）](https://github.com/qappleh/Interview/issues/170)
 
@@ -61,7 +61,7 @@ function myInstanceOf(left, right) {
 
 
 
-### 3. 如何模拟 `Object.create`
+### 3.  `Object.create`
 
 [Object.create - MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/create#polyfill)
 
@@ -94,7 +94,7 @@ function myCreate(proto, propertiesObject) {
 
 ## 二、this
 
-### 1. 如何模拟 `call` ？
+### 1.  `call` ？
 
 [JavaScript深入之call和apply的模拟实现](https://github.com/mqyqingfeng/Blog/issues/11)
 
@@ -153,7 +153,7 @@ Function.prototype.call6 = function (context) {
 
 
 
-### 2. 如何模拟 `apply`
+### 2. `apply`
 
 [JavaScript深入之call和apply的模拟实现](https://github.com/mqyqingfeng/Blog/issues/11)
 
@@ -208,7 +208,7 @@ Function.prototype.apply6 = function (context, arr = []) {
 
 
 
-### 3. 如何模拟 ` bind`
+### 3.  ` bind`
 
 [JavaScript深入之bind的模拟实现](https://github.com/mqyqingfeng/Blog/issues/12)
 
@@ -314,4 +314,18 @@ var new_data = JSON.parse(JSON.stringify(data));
 ```
 
 
+
+## 四、异步
+
+[9k字 | Promise/async/Generator实现原理解析](https://juejin.cn/post/6844904096525189128)
+
+### 1.  `Promise`
+
+
+
+### 2. `async / await`
+
+
+
+### 3. `Generator`
 

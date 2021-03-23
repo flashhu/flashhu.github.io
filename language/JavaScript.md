@@ -692,9 +692,9 @@ console.log(null != 0)
 
 > 即，原始值、引用值的区别
 
-* 基本数据类型存在**栈**中，直接存入的是值。
+* 基本数据类型值占据固定大小，保存在**栈**中。
 
-  复杂数据类型在**栈**中存入的是地址，该地址指向**堆**内存，在堆内存存入的是具体值。
+  复杂 (引用) 数据类型的值是对象，在**栈**中存入的是地址，该地址指向**堆**内存，在堆内存存入的是具体值。
 
 * 基本数据类型是**值拷贝**，拷贝的是具体值；复杂数据类型是**引用拷贝**，拷贝的指向堆内存的引用地址。因此，我们将对象赋值给新的变量时，如使用新变量对属性进行修改，会影响原有变量指向的值，因为两个变量指向同一块内存空间
 
@@ -721,6 +721,8 @@ console.log(null != 0)
 
 
 ## 二、作用域
+
+> 红宝书中也称作用域为执行环境
 
 ### 1. JS 作用域分为哪几类，作用域大小怎么定义？
 
@@ -760,7 +762,7 @@ JavaScript 中的作用域包含：
 
 这是因为在处理`var` 声明时，除绑定作用域外，还进行了初始化，设为 `undefined`。而`let`，`const`  没有初始化，所以没有变量提升。
 
-在这部分还需要注意的是，函数表达式的表现和变量声明相似，只会提升声明本身，不提升赋值，但函数声明会全部提升，包含函数体。
+在这部分还需要注意的是，函数表达式的表现和变量声明相似，只会提升声明本身，不提升赋值，但函数声明会全部提升，包含函数体。类 `class` 虽然本质是一个函数，但只会提升声明，需要在初始化后再创建实例，否则也会抛出错误。
 
 
 
@@ -833,6 +835,15 @@ Babel 处理这部分转换是比较灵活的，如：
 
 * 处理循环中带异步时，除 `let` 声明变为 `var` 外，将相关异步操作变为一函数，控制在新的函数作用域内
 * 在重复声明方面，`let` 处理为 `var` 时，如变更会引起重复声明，则修改一方的变量名
+
+**第三种**，使用匿名函数
+
+```javascript
+// 匿名函数
+(function(){
+	// 块级
+})()
+```
 
 ```javascript
 // with - 传入对象中有对应属性
@@ -922,11 +933,22 @@ for (var i = 0; i < 3; j++) {
 
 
 
+## 三、垃圾回收
+
+> 找出那些不再继续使用的变量，然后释放其占用的内存
+
+垃圾收集策略有标记清除（最常用），引用计数（不太常见）
+
+* 标记清除：在运行时给存储在内存中的所有变量都加上标记，将环境中的及被环境引用的变量去除标记，最后删除带标记的变量
+* 引用计数：跟踪每个值被引用的次数。但它无法处理循环引用的问题
+
+为优化内存占用问题，可进行解除引用，即一旦数据不使用时，将值置为 `null`，让值脱离执行环境，以便垃圾收集器下次运行时将其回收。适用于大多数全局变量和全局对象的属性，局部变量会在它们离开执行环境（作用域）时自动解除引用。
 
 
-## 三、闭包
 
-## 四、垃圾回收
+## 四、闭包
+
+
 
 ## 五、this
 
@@ -937,6 +959,28 @@ for (var i = 0; i < 3; j++) {
 > this 是执行上下文的一个属性，代表函数调用时函数使用的上下文
 >
 > this 不指向函数自身也不指向函数的词法作用域，完全取决于函数在哪里被调用
+
+### 0. 根据规范如何确定 this
+
+[JavaScript深入之从ECMAScript规范解读this](https://github.com/mqyqingfeng/Blog/issues/7)
+
+> MemberExpression : `()`左边的部分
+>
+> IsPropertyReference：如果 base value 是一个对象，就返回 true
+
+1.计算 MemberExpression 的结果赋值给 ref
+
+2.判断 ref 是不是一个 Reference 类型
+
+```
+2.1 如果 ref 是 Reference，并且 IsPropertyReference(ref) 是 true, 那么 this 的值为 GetBase(ref)
+
+2.2 如果 ref 是 Reference，并且 base value 值是 Environment Record, 那么this的值为 ImplicitThisValue(ref)
+
+2.3 如果 ref 不是 Reference，那么 this 的值为 undefined
+```
+
+
 
 ### 1. 判断 this 绑定对象
 
@@ -1031,7 +1075,7 @@ for (var i = 0; i < 3; j++) {
 
 
 
-### 2. new 原理
+### 4. new 原理
 
 [JavaScript深入之new的模拟实现](https://github.com/mqyqingfeng/Blog/issues/13)
 
@@ -1107,6 +1151,10 @@ console.log(tmp.a) // 1
 每个对象的原型也可以有一个原型，以此类推，构成了原型链。
 
 ### 0. 常用操作符 / 方法
+
+> * 使用`for...in...`能获取到实例对象自身的属性和原型链上的属性
+> * 使用`Object.keys()`和`Object.getOwnPropertyNames()`只能获取实例对象自身的属性
+> * 可以通过`.hasOwnProperty()`方法传入属性名来判断一个属性是不是实例自身的属性
 
 * `in`  - [MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/in)
 
@@ -1235,6 +1283,45 @@ https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects
 
 ## 九、函数
 
+### 1. IIFE
+
+[译\] JavaScript：立即执行函数表达式（IIFE）](https://segmentfault.com/a/1190000003985390)
+
+立即执行函数
+
+- 当圆括号出现在匿名函数的末尾想要调用函数时，它会默认将函数当成是函数声明。
+- 当圆括号包裹函数时，它会默认将函数作为表达式去解析，而不是函数声明。
+
+```javascript
+(function(){/* code */}());//Crockford recommends this one，括号内的表达式代表函数立即调用表达式
+(function(){/* code */})();//But this one works just as well，括号内的表达式代表函数表达式
+```
+
+```javascript
+// 模块模式
+var counter = (function(){
+    var i = 0;
+    return {
+        get: function(){
+            return i;
+        },
+        set: function(val){
+            i = val;
+        },
+        increment: function(){
+            return ++i;
+        }
+    }
+    }());
+    counter.get();//0
+    counter.set(3);
+    counter.increment();//4
+    counter.increment();//5
+
+    conuter.i;//undefined (`i` is not a property of the returned object)
+    i;//ReferenceError: i is not defined (it only exists inside the closure)
+```
+
 ### 1. 函数柯里化
 
 
@@ -1292,7 +1379,123 @@ var new_data = JSON.parse(JSON.stringify(data));
 
 
 
-## 十一、追新
+## 十一、异步
+
+[Javascript异步编程的4种方法](https://www.ruanyifeng.com/blog/2012/12/asynchronous%EF%BC%BFjavascript.html)
+
+[JS 异步编程：种类和原理](https://hytonightyx.github.io/fedoc/03-JavaScript/%E5%BC%82%E6%AD%A5%E7%BC%96%E7%A8%8B%E4%B8%93%E9%A2%98.html)
+
+[【建议星星】要就来45道Promise面试题一次爽到底(1.1w字用心整理)](https://juejin.cn/post/6844904077537574919)
+
+ES6 诞生以前，异步编程的方法，大概有下面四种。
+
+- 回调函数
+- 事件监听
+- 发布/订阅
+- Promise 对象
+
+
+
+> Tips —— Promise:
+>
+> `.then`和`.catch`都会返回一个新的`Promise`，返回任意一个非 `promise` 的值都会被包裹成 `promise` 对象
+>
+> `.catch` 只会捕获最先的那个异常
+>
+> `.then` 或者 `.catch` 的参数期望是函数，传入非函数则会发生值透传，如为语句，其实会执行
+>
+> **`.then` 或者 `.catch` 中 `return` 一个 `error` 对象并不会抛出错误，所以不会被后续的 `.catch` 捕获**，`throw` 或 `Promise.reject()`会被捕获
+>
+> `.finally()`方法不管`Promise`对象最后的状态如何都会执行，**回调不接受任何参数**，最终返回的默认会是一个**上一次的Promise对象值**
+>
+> 链式调用后面的内容需要等前一个调用执行完才会执行
+>
+> 紧跟着 `await` 后面的语句相当于放到了 `new Promise` 中，下一行及之后的语句相当于放在 `Promise.then` 中
+>
+> 如果在 `async` 函数中抛出了错误，则终止错误结果，不会继续向下执行
+
+
+
+### 1. Promise几种状态，怎么改变
+
+> **Promise** 对象用于表示一个异步操作的最终完成 (或失败)及其结果值。   —— [MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise)
+
+一个 `Promise` 必然处于以下几种状态之一，且 **`Promise` 的状态一经改变就不能再改变**：
+
+- 待定（pending）: 初始状态，既没有被兑现，也没有被拒绝。
+
+```javascript
+new Promise(r => console.log('pending'))
+// pending
+// Promise {<pending>}
+```
+
+- 已兑现（fulfilled）: 意味着操作成功完成。
+
+```javascript
+new Promise(r => r('fulfilled'))
+// Promise {<fulfilled>: "fulfilled"}
+```
+
+- 已拒绝（rejected）: 意味着操作失败。
+
+```javascript
+new Promise((resolve, reject) => reject('rejected'))
+// Promise {<rejected>: "rejected"}
+```
+
+![Promise 链式调用](../image/language/js-promises.png)
+
+
+
+[模拟 Promise / async / await]()
+
+### 2. Promise.all与Promise.race有什么区别
+
+* `.all()`的作用是接收一组异步任务，然后并行执行异步任务，并且在**所有异步操作执行完**后才执行回调。
+
+* `.race()`的作用也是接收一组异步任务，然后并行执行异步任务，**只保留取第一个执行完成的异步操作**的结果，其他的方法仍在执行，不过执行结果会被抛弃。
+* `all` 和 `race`传入的数组中如果有会抛出异常的异步任务，那么只有最先抛出的错误会被捕获，并且是被`then`的第二个参数或者后面的`catch`捕获；但并不会影响数组中其它的异步任务的执行。
+
+
+
+### 3. 回调函数
+
+优点是简单、容易理解和部署
+
+缺点有：
+
+* **错误处理困难**
+  * 回调函数发生错误时，无法使用 try-catch 来处理错误。由于事件循环机制，回调执行和 try-catch 不会位于同一步骤中；
+  * 因此，一般回调函数要手动传入 err，来处理错误，也就产生了大量样板代码
+
+* **回调地狱**
+  * 回调套回调，执行连续步骤非常棘手
+
+* **代码耦合，维护困难**
+* 每个任务只能指定一个回调函数
+
+
+
+### 4. 事件监听
+
+任务的执行不取决于代码的顺序，而取决于某个事件是否发生
+
+优点是比较容易理解，可以绑定多个事件，每个事件可以指定多个回调函数，而且可以（Decoupling），有利于实现[模块化](http://www.ruanyifeng.com/blog/2012/10/javascript_module.html)
+
+缺点是整个程序都要变成事件驱动型，运行流程会变得很不清晰。
+
+
+
+### 5. 发布/订阅
+
+与"事件监听"类似，但是可以了解存在多少信号、每个信号有多少订阅者，从而监控程序的运行。
+
+[模拟发布订阅模式](http://localhost:3000/#/handwrite/design-patterns-hw?id=_2-%e5%8f%91%e5%b8%83%e8%ae%a2%e9%98%85-emitter)
+
+
+
+## 十二、追新
 
 ### 1. 常用的 ES6 特性
 
@@ -1306,13 +1509,13 @@ var new_data = JSON.parse(JSON.stringify(data));
 
 
 
-## 十二、AJAX
+## 十三、AJAX
 
 [异步网络请求xhr、ajax、fetch与axios对比](https://juejin.cn/post/6844904058466074637)
 
 
 
-## 十三、一些定义
+## 十四、一些定义
 
 ### 1. 为什么是解释型语言
 
@@ -1341,7 +1544,7 @@ var new_data = JSON.parse(JSON.stringify(data));
 
 
 
-## 十四、其他
+## 十五、其他
 
 ### 1. `encodeURIComponent` 和 `encodeURI` 的区别
 
