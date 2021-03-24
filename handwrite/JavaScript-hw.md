@@ -25,14 +25,14 @@ function myNew() {
     var obj = Object.create(Constructor.prototype === null ? Object.prototype : Constructor.prototype);
     // 3. 调用构造函数，并改变 this 指向
     var ret = Constructor.apply(obj, arguments);
-    // 4. 如构造函数返回结果为对象，则直接返回，否则返回新建对象，忽略返回值
-    return typeof ret === 'object' ? ret : obj;
+    // 4. 如构造函数返回结果为对象(非 null)，则直接返回，否则返回新建对象，忽略返回值
+    return (typeof result2 === 'function' || (typeof result2 === 'object' && result !== null)) ? ret : obj;
 }
 ```
 
 
 
-### 2. instanceof`
+### 2. instanceof
 
 [instanceOf原理，手写一个instanceOf?(快手）](https://github.com/qappleh/Interview/issues/170)
 

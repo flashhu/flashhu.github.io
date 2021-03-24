@@ -80,6 +80,8 @@ null === undefined
 
 [(建议收藏)原生JS灵魂之问, 请问你能接得住几个？(上)](https://juejin.cn/post/6844903974378668039#heading-5)
 
+[JavaScript 深入之浮点数精度](https://github.com/mqyqingfeng/Blog/issues/155)
+
 > 0.1和0.2在转换成二进制后会无限循环，
 >
 > 由于标准位数的限制后面多余的位数会被截掉，此时就已经出现了精度的损失，
@@ -92,6 +94,16 @@ null === undefined
 console.log(0.1 + 0.2 == 0.3); // false
 console.log(Math.abs(0.1 + 0.2 - 0.3) <= Number.EPSILON); // true
 ```
+
+**浮点数进度问题**
+
+JS 采用双精确度，用 64 位字节来储存一个浮点数
+
+0.1 转成二进制时是一个无限循环的数， 0.00011001100110011……
+
+在存储时就已经发生精度丢失
+
+`0.1 + 0.2` 实际发生了三次精度丢失，两次存储，一次运算
 
 
 
@@ -204,7 +216,7 @@ console.log(BigInt(9999999999999999999999999998)) // 999999999999999958311973683
 
 
 
-### 7. 类型判断的方法 ？
+### 7. 类型判断的方法 
 
 [JavaScript专题之类型判断(上)](https://github.com/mqyqingfeng/Blog/issues/28)
 
@@ -246,7 +258,7 @@ console.log(BigInt(9999999999999999999999999998)) // 999999999999999958311973683
 obj.__proto__.__proto__ ... = Obj.prototype
 ```
 
-**`instanceof` 适合用于对对象子类型进行有预期的类型判断（是不是某一类的实例）**
+**`instanceof` 适合用于对非 `Function`，`Object`的引用类型进行类型判断（是不是某一类的实例）**
 
 还可以使用 [`Symbol.hasInstance`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Symbol/hasInstance)，自定义`instanceof`在某一类上的行为
 
@@ -267,7 +279,7 @@ console.log( Object instanceof Function ); // true
 console.log( Object instanceof Object ); // true
 ```
 
-* TODO：补充原因
+[原型链图例](language/JavaScript?id=_7-原型链)
 
 ```javascript
 class MyArray {
@@ -333,6 +345,8 @@ console.log(Object.prototype.toString.call(t)) // [object Object]
 ```
 
 在 IE6 / Edge 中，null 和 undefined 会被 Object.prototype.toString 识别成 [object Object]！
+
+> 实际测试时，Edge 可正常返回，IE 返回 [object Window]
 
 **`Object.prototype.toString` 适合用于内置类型的类型判断**
 
@@ -712,7 +726,7 @@ console.log(null != 0)
 
 * 当 index 的取值不在 str 的长度范围内时
 
-  `str[index]` 返回 `undefined`，`charAt(index)`放回空字符串；
+  `str[index]` 返回 `undefined`，`charAt(index)`返回空字符串；
 
 * `str[index]` 不兼容 ie6 - ie8，`charAt(index)`可以兼容
 
@@ -724,6 +738,22 @@ console.log(null != 0)
 
 > 红宝书中也称作用域为执行环境
 
+> **LHS查询**—查找目标
+> 变量出现在赋值操作的左侧时
+> 查找变量 并试图为变量赋一新值
+>
+> **RHS查询**—查找源头
+> 变量出现在赋值操作的右（非左）侧时
+> 查询并获取变量的值
+>
+> —— 《你不知道的 JS》
+
+> 活动对象和变量对象其实是一个东西
+>
+> VO：变量对象是与执行上下文相关的数据作用域，存储了在上下文中定义的变量和函数声明；是规范上的或者说是引擎实现上的，不可在 JavaScript 环境中访问
+>
+> AO：只有到当进入一个执行上下文中，这个执行上下文的变量对象才会被激活，能访问该对象的各种属性。被激活的变量对象即活动对象
+
 ### 1. JS 作用域分为哪几类，作用域大小怎么定义？
 
 > 作用域是根据名称查找变量的一套规则
@@ -731,6 +761,8 @@ console.log(null != 0)
 > 欺骗词法作用域的方法有：`eval`，`with`
 
 JavaScript 采用词法作用域模型，即作用域在写代码时进行静态确定，主要关注在何处声明
+
+> 函数的作用域在函数定义的时候就决定了
 
 JavaScript 中的作用域包含：
 
@@ -831,12 +863,12 @@ ES5 严格模式下已被禁用，会抛出语法错误。
 
 **第二种**，是使用 `try/catch` 语句，其中 `catch` 分句会创建一块作用域 。
 
+**第三种**，使用匿名函数
+
 Babel 处理这部分转换是比较灵活的，如：
 
 * 处理循环中带异步时，除 `let` 声明变为 `var` 外，将相关异步操作变为一函数，控制在新的函数作用域内
 * 在重复声明方面，`let` 处理为 `var` 时，如变更会引起重复声明，则修改一方的变量名
-
-**第三种**，使用匿名函数
 
 ```javascript
 // 匿名函数
@@ -929,6 +961,12 @@ for (var i = 0; i < 3; j++) {
 
 
 
+### 6. 作用域链
+
+[JavaScript深入之作用域链](https://github.com/mqyqingfeng/Blog/issues/6)
+
+
+
 ### 模块化演变
 
 
@@ -948,15 +986,79 @@ for (var i = 0; i < 3; j++) {
 
 ## 四、闭包
 
+> 基于词法作用域书写代码所产生的自然结果
+>
+> —— 《你不知道的  JS》
+
+**是什么**
+
+闭包是有权访问另一个函数作用域中的变量的函数
+
+**为什么**
+
+即使创建它的执行上下文被销毁，也依然能凭借作用域链访问到变量值，因为函数<u>作用域并未被清除</u>。
+
+> 1. 在后台执行环境中，闭包的作用域链包含它自己的作用域，包含函数的作用域和全局的作用域
+>
+> 2. 通常情况下，函数作用域及其变量会在函数执行结束后被销毁
+>
+> 3. 但，当函数返回一闭包时，该函数的作用域会一直被保存直到闭包不存在。
+
+**特点**
+
+* 正因为闭包携带了包含它的函数的作用域，并且会阻止垃圾回收机制释放内存，它会比其他函数<u>占用更多空间</u>，所以需要避免过度使用闭包
+
+  > 闭包保存了整个变量对象（AO / VO）
+
+**例子**
+
+> 红宝书中的例子：使用闭包提供公有方法访问私有对象属性
+
+一个常见的例子为借助闭包在使用 `var` 的 `for` 循环中如何捕获当次循环的值
+
+```javascript
+var data = [];
+
+for (var i = 0; i < 3; i++) {
+  data[i] = (function (i) {
+        return function(){
+            console.log(i);
+        }
+  })(i);
+}
+
+data[0]();
+data[1]();
+data[2]();
+```
+
+[How Are Function Components Different from Classes?](https://overreacted.io/how-are-function-components-different-from-classes/)
+
+在 React 中，也会借助闭包的特性。
+
+如类组件和函数组件的一大区别在于：
+
+类组件会捕获最新的值，而函数组件会捕获当次的值
+
+这在设置事件监听，或使用 `setTimeout` 等处理异步操作时会遇到。
+
+类组件可借助闭包捕获到当次的值，如在 render 中存当次 props 的值，再传入需要处理的函数。
+
+函数组件捕获最新值通常借助 ref 实现。
+
+**需要注意的地方**
+
+受垃圾回收机制影响，在某些老版浏览器（IE9 之前），如闭包的作用域链中保存 HTML 元素，则该元素将无法被销毁
+
 
 
 ## 五、this
 
 [再来40道this面试题酸爽继续(1.2w字用手整理)](https://juejin.cn/post/6844904083707396109)
 
-> **在一个方法调用中，`this` 始终是点符号 `.` 前面的对象**
+> this 是执行上下文的一个属性，代表<u>函数调用时函数使用的上下文</u>，是一个对象
 
-> this 是执行上下文的一个属性，代表函数调用时函数使用的上下文
+> this 是在运行时基于函数的执行环境绑定的
 >
 > this 不指向函数自身也不指向函数的词法作用域，完全取决于函数在哪里被调用
 
@@ -1036,7 +1138,7 @@ for (var i = 0; i < 3; j++) {
 
 5. **由上下文对象调用**：绑定到那个上下文对象。
 
-   丢失this绑定（隐式丢失）的形式：函数别名；参数传递（隐式赋值）；回调函数等
+   丢失this绑定（隐式丢失）的形式：<u>函数别名；参数传递（隐式赋值）；回调函数等</u>
 
 6. **默认**：在严格模式下绑定到undefined，否则绑定到全局对象。
 
@@ -1048,16 +1150,54 @@ for (var i = 0; i < 3; j++) {
 
 [详解箭头函数和普通函数的区别以及箭头函数的注意事项、不适用场景](https://juejin.cn/post/6844903801799835655)
 
-> ES6 的箭头函数和以前的普通函数的区别；箭头函数可以作为构造函数吗
+> 原型，this（从哪来，能不能改，全局），参数，new
 
-**区别**
+**原型**
 
-* 箭头函数的 this 指向外层作用域，普通函数的 this 取决于在哪被调用，怎么调用
-* 
+* 箭头函数没有`prototype`
+
+**this指向**
+
+* 箭头函数本身没有`this`。`this` 指向定义时所在外层的第一个普通函数，会随该函数 `this` 指向的改变而改变
+* 普通函数的 `this` 取决于在哪被调用，怎么调用
+
+**能否修改 this**
+
+* 箭头函数不能直接修改它的this指向，可以去修改被继承的普通函数的this指向来间接修改
+* 普通函数可以通过 `call`，`apply`，`bind` 直接修改 `this`
+
+**全局作用域的 this 指向**
+
+* 箭头函数在严格和非严格模式下都绑定到 `window`
+* 普通函数在严格模式下绑定到 `undefined`，否则绑定到全局对象 `window`。
+
+**参数**
+
+* 箭头函数的 `this` 指向全局时，使用 `arguments` 会报未声明的错误；`this` 指向普通函数时，`arguments` 继承自该普通函数；查找方式类似于作用域链查询
+
+  可以使用 ES6 的 `rest` 参数（即 `...` 扩展符）来获取不定数量的参数
+
+**new **
+
+> ES6 为`new`命令引入了一个`new.target`属性，该属性一般用在构造函数之中，返回`new`命令作用于的那个构造函数。如果构造函数不是通过`new`命令或`Reflect.construct()`调用的，`new.target`会返回`undefined`          —— [阮一峰 - ES6 入门](https://es6.ruanyifeng.com/?search=new.target&x=0&y=0#docs/class#new-target-%E5%B1%9E%E6%80%A7)
+
+* 箭头函数不能做构造函数，使用 `new` 会抛出错误
+
+* 箭头函数不支持`new.target`
 
 
 
-### 3. call、apply、bind区别
+### 3. 为什么箭头函数不能做构造函数
+
+[Daily-Interview-Question](https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/101)
+
+- 没有自己的 this
+- 没有 prototype 属性 
+- 而 new 实例化对象的过程中，会将对象的原型连接到构造函数的原型上，且使用 `call` 或 `apply` 将 `this` 指向实例调用构造函数
+
+
+
+### 4. call、apply、bind区别
 
 > [`call()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/call) 方法使用一个指定的 `this` 值和单独给出的一个或多个参数来调用一个函数。
 >
@@ -1075,7 +1215,7 @@ for (var i = 0; i < 3; j++) {
 
 
 
-### 4. new 原理
+### 5. new 原理
 
 [JavaScript深入之new的模拟实现](https://github.com/mqyqingfeng/Blog/issues/13)
 
@@ -1157,6 +1297,8 @@ console.log(tmp.a) // 1
 > * 可以通过`.hasOwnProperty()`方法传入属性名来判断一个属性是不是实例自身的属性
 
 * `in`  - [MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/in)
+
+  > 无论属性是否可枚举
 
   指定的属性在指定的对象或其原型链，如 `'make' in car`
 
@@ -1269,17 +1411,468 @@ console.log(Apple.prototype.isPrototypeOf(a)) // true
 
 
 
+### 6. 原型
+
+[JavaScript高级程序设计 P147]()
+
+* 每个函数都有一个 `prototype` 属性，指向一个对象
+* 该对象包含可以由特定类型的所有实例共享的属性和方法，称为"原型"
+* 使用原型对象的好处在于：可以共享包含的属性和方法
+* 受其共享的特点影响，一般在原型中定义共享的属性方法，在构造函数中定义实体属性
+* 原型对象通常会自动获得指向构造函数（`prototype`指向该原型的函数）的 `constructor` 属性
+* 重写原型对象时，会切断现有原型和之前所有已存在的对象实例的关系，并会修改 `constructor`。
+* 之前所有已存在的对象实例引用的仍是最初的原型
+
+
+
+### 7. 原型链
+
+[如何回答面试中的JavaScript原型链问题](https://zhuanlan.zhihu.com/p/356980105)
+
+**概念**
+
+原型链是指由 `__proto__` 串起来的一条链路
+
+在对象上查找属性时，如对象本身不具有该属性，则会通过 `__proto__`，到对象的原型对象中查找，如原型对象中也未找到，再向上一层原型对象中查找，直到 `Object.prototype` 的 `__proto__` 指向 `null`。
+
+这一过程中，形如 `实例.__proto__.__proto__` 就是原型链。
+
+**实践：比如画个图**
+
+[ES6—类的实现原理](https://segmentfault.com/a/1190000008390268)
+
+```javascript
+class A {}
+class B extends A {}
+
+const b = new B();
+```
+
+<img src="../image/language/JS-原型链1.jpg" alt="原型链1" style="zoom:80%;" />
+
+```javascript
+function A() {}
+function B() {}
+
+B.prototype = Object.create(A.prototype);
+
+const b = new B();
+```
+
+<img src="../image/language/JS-原型链2.jpg" alt="原型链图例" style="zoom:80%;" />
+
 ## 八、继承
 
-### 1. 原型继承
+> JavaScript 主要通过原型链实现继承。                      —— 《JavaScript高级程序设计》
 
-* 给原型添加方法的代码要放在替换原型语句之后
-* 问题1：注意引用类型的特殊性，容易出现数据共享的问题
-* 问题2：不能向父类的构造函数中传递参数
+[JavaScript高级程序设计 P162]()
 
-### 2. 类式继承
+[JavaScript深入之继承的多种方式和优缺点](https://github.com/mqyqingfeng/Blog/issues/16)
 
-https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/create
+[【何不三连】做完这48道题彻底弄懂JS继承(1.7w字含辛整理-返璞归真)](https://juejin.cn/post/6844904098941108232)
+
+[【何不三连】比继承家业还要简单的JS继承题-封装篇(牛刀小试)](https://juejin.cn/post/6844904094948130824)
+
+[Class 的继承](https://es6.ruanyifeng.com/#docs/class-extends)
+
+<img src="../image/language/JS-继承.jpg" alt="继承图例总览" style="zoom:80%;" />
+
+
+
+> 区别主要在于处理顺序不同
+>
+> ES5 的继承，实质是<u>先创造子类的实例对象`this`</u>，然后<u>再将父类的方法添加到`this`上面</u>（`Parent.apply(this)`）。
+>
+> ES6 的继承机制完全不同，实质是<u>先将父类实例对象的属性和方法，加到`this`上面</u>（所以必须先调用`super`方法），然后<u>再用子类的构造函数修改`this`</u>。
+
+
+
+**继承就是子类可以使用父类的所有功能，并且对这些功能进行扩展**  => 复用
+
+
+
+各种继承方式可依次问以下几个问题（灵魂五问）：
+
+* 能取到父类实例属性方法/原型属性方法吗？
+* 是否存在各子类实例共享父类实体属性的情况？
+* 可以实现多继承，向父类构造函数传参吗？
+* 能否使用 `instanceof` 判断子类实例和父类的关系？
+* 构造函数被调用了几次？父类方法是能否复用？（使用 `new`，`Object.create` 可复用，只有 `call` 无复用 ）
+
+
+
+### 1. 原型链继承
+
+使用 `new` 运算符
+
+**优点**：
+
+可取到父类实例属性方法及原型属性方法
+
+**缺点**：
+
+包含引用类型值的原型，会导致父类实例属性被所有实例<u>共享</u>；
+
+无法实现<u>多继承</u>；无法向<u>父类构造函数传参</u>
+
+```javascript
+function Parent () {
+    this.name = 'kevin';
+}
+
+Parent.prototype.getName = function () {
+    console.log(this.name);
+}
+
+function Child () {
+
+}
+
+// 关键代码
+Child.prototype = new Parent();
+
+var child1 = new Child();
+
+console.log(child1.getName(), child1) // kevin
+```
+
+### 2. 构造函数继承
+
+使用 `call` 或 `apply` 在子类构造函数中调用父类构造函数
+
+**优点**：
+
+解决原型属性被<u>共享</u>的问题；
+
+<u>可实现多继承</u>（父类实例属性方法）；可以向父类构造函数<u>传参</u>
+
+**缺点**：
+
+只能取到父类实例属性及方法，<u>无法取到父类原型属性及方法</u>；
+
+无法<u>函数复用</u>，复制了父类构造函数中的属性和方法，每个子类都有父类实例函数的副本，影响性能
+
+无法用 `instanceof` 判断子类与父类关系，<u>子类非父类的实例</u>；
+
+```javascript
+function Parent () {
+    this.names = ['kevin', 'daisy'];
+}
+
+function Child () {
+    // 关键代码
+    Parent.call(this);
+}
+
+var child1 = new Child();
+
+child1.names.push('yayu');
+
+console.log(child1.names); // ["kevin", "daisy", "yayu"]
+
+var child2 = new Child();
+
+console.log(child2.names); // ["kevin", "daisy"]
+```
+
+### 3. 组合继承
+
+使用 `new` 和 `call`（`apply`）
+
+**优点**：
+
+可继承父类实例属性方法，也继承了父类原型属性方法
+
+解决共享实例属性的问题；
+
+可复用函数；
+
+可多继承（父类实例属性方法）；可向父类构造函数传参；
+
+**缺点：**
+
+<u>父类构造函数调用两次</u>，生成了两个实例
+
+子类实例中的属性和方法会覆盖子类原型(父类实例)上的属性和方法，所以<u>增加了不必要的内存</u>。
+
+```javascript
+function Parent (name) {
+    this.name = name;
+    this.colors = ['red', 'blue', 'green'];
+}
+
+Parent.prototype.getName = function () {
+    console.log(this.name)
+}
+
+function Child (name, age) {
+	// 关键代码
+    Parent.call(this, name);
+    this.age = age;
+
+}
+
+// 关键代码
+Child.prototype = new Parent();
+// 关键代码
+Child.prototype.constructor = Child;
+
+var child1 = new Child('kevin', '18');
+
+child1.colors.push('black');
+
+console.log(child1.name); // kevin
+console.log(child1.age); // 18
+console.log(child1.colors); // ["red", "blue", "green", "black"]
+
+var child2 = new Child('daisy', '20');
+
+console.log(child2.name); // daisy
+console.log(child2.age); // 20
+console.log(child2.colors); // ["red", "blue", "green"]
+```
+
+### 4. 原型式继承
+
+> 本质是一个浅拷贝
+
+使用 `Object.create` 
+
+[ES5 | 模拟 Object.create 实现](handwrite/JavaScript-hw?id=_3-%e5%a6%82%e4%bd%95%e6%a8%a1%e6%8b%9f-objectcreate)
+
+**优点**：
+
+未使用父类构造函数，降低代码量
+
+父类原型方法能复用
+
+**缺点**：
+
+只能取到父类原型属性及方法，不能取到父类实例属性及方法；
+
+引用类型，存在被所有实例共享的情况；
+
+无法实现多继承；
+
+无法向父类构造函数传参；
+
+```javascript
+function createObj(o) {
+    function F(){}
+    F.prototype = o;
+    return new F();
+}
+
+var person = {
+    name: 'kevin',
+    friends: ['daisy', 'kelly']
+}
+
+// 关键代码
+var person1 = createObj(person);
+var person2 = createObj(person);
+
+person1.name = 'person1';
+console.log(person2.name); // kevin
+
+person1.firends.push('taylor');
+console.log(person2.friends); // ["daisy", "kelly", "taylor"]
+```
+
+### 5. 寄生式继承
+
+使用 `Object.create` ，再对生成的对象添加属性
+
+**优点**：
+
+未使用父类构造函数；
+
+父类原型方法部分能复用
+
+**缺点：**
+
+只能继承父类原型属性方法，无法继承父类实例属性方法；
+
+存在实例共享原型属性的情况；
+
+不能函数复用（指手动添加的对象属性），效率低；
+
+无法传参，无法多继承；
+
+```javascript
+function createObj (o) {
+    var clone = Object.create(o);
+    // 和原型式的主要区别 ↓
+    clone.sayName = function () {
+        console.log('hi');
+    }
+    return clone;
+}
+```
+
+### 6. 寄生组合继承
+
+使用 `Object.create` 和 `call`（`apply`）
+
+**优点：**
+
+可以取到父类实例属性方法，父类原型属性方法；
+
+解决实例共享父类实例属性的问题；
+
+父类构造函数只使用一次；
+
+可多继承父类实例属性方法，可传递参数；
+
+```javascript
+function Parent (name) {
+    this.name = name;
+    this.colors = ['red', 'blue', 'green'];
+}
+
+Parent.prototype.getName = function () {
+    console.log(this.name)
+}
+
+function Child (name, age) {
+	// 关键代码
+    Parent.call(this, name);
+    this.age = age;
+}
+// 关键代码
+Child.prototype = Object.create(Parent.prototype);
+// 关键代码
+Child.prototype.constructor = Parent;
+
+var child1 = new Child('kevin', '18');
+
+console.log(child1)
+```
+
+### 7. 混入方式继承
+
+>  `Object.assign`，ES6
+
+解决前面没有办法多继承父类原型属性方法的问题
+
+使用 `Object.assign`
+
+此处需要注意的地方是：`instanceof` 只能判断使用 `Object.create` 的父类
+
+```javascript
+function MyClass() { 
+    // 关键代码
+    SuperClass.call(this);
+    OtherSuperClass.call(this);
+}
+
+// 关键代码
+MyClass.prototype = Object.create(SuperClass.prototype);
+
+// 关键代码 ↓
+Object.assign(MyClass.prototype, OtherSuperClass.prototype);
+
+// 关键代码
+MyClass.prototype.constructor = MyClass;
+
+// 在之类上附加方法
+MyClass.prototype.myMethod = function() {
+  // do sth
+};
+```
+
+### 8. Class 继承
+
+> `class`本质虽然是个函数，但是并不会像函数一样提升至作用域最顶层
+
+**特点**
+
+* 在`constructor`中`var`一个变量，它只存在于`constructor`这个构造函数中
+* 在`constructor`中使用`this`定义的属性和方法，在`class`中使用`=`来定义一个属性和方法会被定义到实例上
+* 在`class`中直接定义一个方法，会被添加到`原型对象prototype`上
+* 在`class`中使用了`static`修饰符定义的属性和方法被认为是静态的，被添加到类本身，不会添加到实例上
+
+**super**
+
+* 用于产生实例 `this`
+* `super`当成函数调用时，<u>代表父类的构造函数，且返回的是子类的实例</u>，也就是此时`super`内部的`this`指向子类。在子类的`constructor`中`super()`就相当于是`Parent.constructor.call(this)`
+  * 只能在构造函数中使用
+  * `this` 的使用必须放在 `super` 后
+* `super`当成对象调用时，<u>普通函数中`super`对象指向父类的原型对象，静态函数中指向父类</u>。且通过`super`调用父类的方法时，`super`会绑定子类的`this`，就相当于是`Parent.prototype.fn.call(this)`
+
+**extends**
+
+- `extends`后面接着的目标不一定是`class`，只要是个有`prototype`属性的函数就可以了
+
+**实现原理**
+
+[ES6—类的实现原理](https://segmentfault.com/a/1190000008390268)
+
+* class：
+
+  `class a(){}` => `var a = function(){return a}()`
+
+* constructor
+
+  转为给对象添加属性，`Object.create`
+
+* extends 
+
+  原型链，设置 `subClass.__proto__ = superClass`
+
+```javascript
+var base = 'window';
+
+class Food {
+    constructor(name) {
+        // 构造函数中有效
+        var base = 'food';
+        // 实例属性
+        this.name = name;
+        this.from  = 'food';
+        console.log('Food constructor:', base);
+    }
+
+    // 使用 = 来定义一个属性和方法会被定义到实例上
+    getName = function () {
+        console.log('Food:', this.name)
+    }
+
+    // 直接定义一个方法，会被添加到原型对象上
+    getBase() {
+        console.log('Food getBase:', base);
+        console.log('this:', this.from);
+    }
+}
+
+Food.getPrice = function () {
+    console.log('free');
+}
+
+class Rice extends Food {
+    constructor(name) {
+        // 当成函数调用时, 代表父类的构造函数，且返回的是子类的实例
+        var instance = super(name);
+        this.from = 'rice';
+        console.log(instance);
+        // this 指向子类
+        console.log(instance === this);
+        // 在子类的普通函数中super对象指向父类的原型对象
+        // this 指向子类
+        super.getBase();
+    }
+
+    static getFoodPrice() {
+        // 在子类的静态方法中super对象指向父类
+        super.getPrice();
+    }
+}
+
+const r = new Rice('dongbei')
+Rice.getFoodPrice();
+```
+
+
 
 ## 九、函数
 
@@ -1322,7 +1915,17 @@ var counter = (function(){
     i;//ReferenceError: i is not defined (it only exists inside the closure)
 ```
 
-### 1. 函数柯里化
+
+
+### 2. 函数柯里化
+
+**是什么**
+
+柯里化是一种将使用多个参数的一个函数转换成一系列使用一个参数的函数的技术
+
+**为什么**
+
+可以实现**参数复用**，降低通用性，提高适用性
 
 
 
