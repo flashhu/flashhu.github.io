@@ -5,7 +5,8 @@
   - [JavaScript](language/JavaScript.md)
 - 深入
   - [JavaScript](handwrite/JavaScript-hw.md)
-  - [跨域相关手写](handwrite/cross-origin-hw.md)
+  - [设计模式](handwrite/design-patterns-hw.md)
+  - [跨域相关](handwrite/cross-origin-hw.md)
 - React
   - [概念](react/React概念性梳理.md)
   - [原理](react/React工作流程.md)
@@ -21,4 +22,7 @@
 - 操作系统
   - [基础](os/基础.md)
 - 算法
+  - [排序](leetcode/sort.md)
   - [二叉树](leetcode/tree.md)
+- 项目
+  - [PWA](project/PWA.md)

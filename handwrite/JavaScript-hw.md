@@ -329,3 +329,120 @@ var new_data = JSON.parse(JSON.stringify(data));
 
 ### 3. `Generator`
 
+
+
+## 五、函数
+
+### 1. 函数柯里化
+
+整理思路为：用闭包把参数保存起来，当参数的数量足够执行函数了，就开始执行函数
+
+**不定长简易**
+
+> 严格讲不算柯里化，为链式调用
+
+整体思路为闭包加递归，自定义 `valueOf` 方法
+
+```javascript
+const add = function(sum) {
+    const fn = function(n) {
+        return add(n + sum);
+    };
+
+    fn.valueOf = function() {
+        return sum;
+    };
+
+    return fn;
+}
+
+/** Test **/
+add(1); // Function
+add(1); // 1
+add(1)(2); // 3
+add(1)(2)(3); // 5
+```
+
+**定长简易**
+
+[现代 JavaScript 教程 - 柯里化](https://zh.javascript.info/currying-partials)
+
+不支持乱序输入
+
+```javascript
+function curry(func) {
+    return function curried(...args) {
+        if (args.length >= func.length) {
+            return func.apply(this, args);
+        } else {
+            return function (...args2) {
+                return curried.apply(this, args.concat(args2));
+            }
+        }
+    };
+}
+```
+
+**定长详细**
+
+[JavaScript专题之函数柯里化](https://github.com/mqyqingfeng/Blog/issues/42)
+
+定长，支持乱序输入
+
+```javascript
+function curry(fn, args, holes) {
+    length = fn.length;
+
+    args = args || [];
+
+    holes = holes || [];
+
+    return function() {
+
+        var _args = args.slice(0),
+            _holes = holes.slice(0),
+            argsLen = args.length,
+            holesLen = holes.length,
+            arg, i, index = 0;
+
+        for (i = 0; i < arguments.length; i++) {
+            arg = arguments[i];
+            // 处理类似 fn(1, _, _, 4)(_, 3) 这种情况，index 需要指向 holes 正确的下标
+            if (arg === _ && holesLen) {
+                index++
+                if (index > holesLen) {
+                    _args.push(arg);
+                    _holes.push(argsLen - 1 + index - holesLen)
+                }
+            }
+            // 处理类似 fn(1)(_) 这种情况
+            else if (arg === _) {
+                _args.push(arg);
+                _holes.push(argsLen + i);
+            }
+            // 处理类似 fn(_, 2)(1) 这种情况
+            else if (holesLen) {
+                // fn(_, 2)(_, 3)
+                if (index >= holesLen) {
+                    _args.push(arg);
+                }
+                // fn(_, 2)(1) 用参数 1 替换占位符
+                else {
+                    _args.splice(_holes[index], 1, arg);
+                    _holes.splice(index, 1)
+                }
+            }
+            else {
+                _args.push(arg);
+            }
+
+        }
+        if (_holes.length || _args.length < length) {
+            return curry.call(this, fn, _args, _holes);
+        }
+        else {
+            return fn.apply(this, _args);
+        }
+    }
+}
+```

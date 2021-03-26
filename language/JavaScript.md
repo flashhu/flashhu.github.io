@@ -1,3 +1,5 @@
+> 
+>
 > 知识是有关联的 ：）
 
 > 《你不知道的 JS》
@@ -967,20 +969,114 @@ for (var i = 0; i < 3; j++) {
 
 
 
-### 模块化演变
-
-
-
 ## 三、垃圾回收
 
-> 找出那些不再继续使用的变量，然后释放其占用的内存
+[一文搞懂V8引擎的垃圾回收](https://juejin.cn/post/6844904016325902344)
 
-垃圾收集策略有标记清除（最常用），引用计数（不太常见）
+> 默认情况下，V8引擎在`64`位系统下最多只能使用约`1.4GB`的内存，在`32`位系统下最多只能使用约`0.7GB`的内存
+>
+> **V8引擎可用内存不多的原因**：
+>
+> ①作为浏览器端JavaScript的执行环境，没有必要将最大内存设置得过高 
+>
+> ②由于JS的单线程机制，垃圾回收的过程阻碍了主线程逻辑的执行。垃圾回收本身也是一件非常耗时的操作，如果内存使用过高，那么必然会导致垃圾回收的过程缓慢，也就会导致主线程的等待时间越长，浏览器也就越长时间得不到响应。
+
+### 1. 垃圾回收机制
+
+[JavaScript高级程序设计 P78]()
+
+**是什么**
+
+执行环境管理代码执行过程中内存使用的一种机制
+
+主要为：找出那些不再继续使用的变量，然后释放其占用的内存
+
+**为什么**
+
+如果不及时进行垃圾回收，会导致没有新的内存被释放，从而引发内存泄漏导致程序的性能直线下降甚至崩溃
+
+及时释放内存有利于提高内存的利用率
+
+**怎么做的**
+
+> JavaScript 中的垃圾收集策略有标记清除（最常用），引用计数（不太常见）
+>
+> - 标记清除：在运行时给存储在内存中的所有变量都加上标记，将环境中的及被环境引用的变量去除标记，最后删除带标记的变量
+> - 引用计数：跟踪每个值被引用的次数。但它无法处理循环引用的问题（现代浏览器基本已放弃此种策略）
 
 * 标记清除：在运行时给存储在内存中的所有变量都加上标记，将环境中的及被环境引用的变量去除标记，最后删除带标记的变量
 * 引用计数：跟踪每个值被引用的次数。但它无法处理循环引用的问题
 
-为优化内存占用问题，可进行解除引用，即一旦数据不使用时，将值置为 `null`，让值脱离执行环境，以便垃圾收集器下次运行时将其回收。适用于大多数全局变量和全局对象的属性，局部变量会在它们离开执行环境（作用域）时自动解除引用。
+V8的垃圾回收策略主要是基于`分代式垃圾回收机制`，其根据**对象的存活时间**将内存的垃圾回收进行不同的分代，然后对不同的分代采用不同的垃圾回收算法。
+
+* 垃圾回收的过程主要出现在新生代和老生代
+
+* 对象晋升（从新生代到老生代）的条件（或，不是与）：
+
+  * 对象是否经历过一次`Scavenge`算法
+  * `To`空间的内存占比是否已经超过`25%`
+
+* `新生代(new_space)`：大多数的对象开始都会被分配在这里，这个区域相对较小但是<u>垃圾回收特别频繁</u>，该区域被分为两半，<u>一半用来分配内存，另一半用于在垃圾回收时将需要保留的对象复制过来</u>。
+
+  * `Scavenge`算法是一种典型的牺牲空间换取时间的算法，浪费了一半的内存用于复制
+  * 当进行垃圾回收时，如果`From`空间中尚有<u>存活</u>对象，则会被复制到`To`空间进行保存，非存活的对象会被自动回收。当复制完成后，`From`空间和`To`空间完成一次<u>角色互换</u>
+
+* `老生代(old_space)`：新生代中的对象在存活一段时间后就会被转移到老生代内存区，<u>相对于新生代该内存区域的垃圾回收频率较低</u>。老生代又分为`老生代指针区`和`老生代数据区`，前者包含大多数可能存在指向其他对象的指针的对象，后者只保存原始数据对象，这些数据没有指向其他对象的指针。
+
+  * 采用新的算法`Mark-Sweep(标记清除)`和`Mark-Compact(标记整理)`来进行管理
+
+  * `Mark-Sweep(标记清除)`分为`标记`和`清除`两个阶段，在标记阶段会遍历堆中的所有对象，然后标记活着的对象（判断某个对象是否可以被访问到），在清除阶段中，会将死亡的对象进行清除
+
+  * **标记清除算法**的缺点在于所清理的对象的内存地址可能不是连续的，所以就会出现<u>内存碎片</u>
+
+  * **标记整理**主要用于解决这一问题。在标记阶段后，进入整理阶段，将活动对象往堆内存的另一端移动。清除阶段时，将存有死亡对象的一侧全部清除
+
+  * 老生代存放的活动对象多，处理耗时长，为减少卡顿的时间，引入**增量标记**的概念。先标记堆内存中的一部分对象，然后暂停，将执行权重新交给JS主线程，待主线程任务执行完毕后再从原来暂停标记的地方继续标记，直到标记完整个堆内存
+
+    > 有点像`React`框架中的`Fiber`架构，异步可中断更新
+    >
+    > 这里是异步可中断垃圾回收
+
+<img src="../image/language/JS-V8内存结构图.jpg" alt="图例" style="zoom:67%;" />，
+
+
+
+### 2. 如何避免内存泄露
+
+[面试题：什么是内存泄漏？内存溢出？](https://zhuanlan.zhihu.com/p/69151763)
+
+> **内存溢出**就是你要求分配的内存超出了系统能给你的，系统不能满足需求，于是产生溢出
+
+**是什么**
+
+内存泄漏是指你向系统申请分配内存进行使用(new)，可是使用完了以后却不归还(delete)，结果你申请到的那块内存你自己也不能再访问，且系统也不能再次将它分配给需要的程序
+
+**为什么**
+
+内存泄漏会导致程序的性能直线下降甚至崩溃
+
+**怎么做**
+
+* 尽量避免使用全局变量，如在全局作用域中使用 `var` 声明变量
+
+  * 垃圾回收器会在内部构建一个`根列表`，用于从根节点出发去寻找那些可以被访问到的变量，而 `window` 对象可视为一根节点，会被视为存活的对象，常驻内存，不进行垃圾回收，直到进程退出。
+  * 如使用全局变量，尽量在使用完毕后将值置为 `null`，解除引用，触发回收机制
+
+* 及时清除定时器 `setInterval`
+
+* 避免过度使用闭包
+
+  * 存在变量引用，作用域未释放
+
+* 清除 DOM 引用
+
+  * 存储 DOM 元素后，即使使用 `Node.removeChild` 后，由于存在引用，内存没有被释放
+
+* 弱引用
+
+  > 弱引用是指垃圾回收的过程中不会将键名对该对象的引用考虑进去，只要所引用的对象没有其他的引用了，垃圾回收机制就会释放该对象所占用的内存
+
+  * 相关数据结构`WeakMap`和`WeakSet`
 
 
 
@@ -991,6 +1087,8 @@ for (var i = 0; i < 3; j++) {
 > —— 《你不知道的  JS》
 
 **是什么**
+
+> 一般来说，我们在查找变量时，在本地作用域中查找不到就会沿着作用域链从内向外单向查找，但是闭包的特性可以让我们在外部作用域访问内部作用域中的变量
 
 闭包是有权访问另一个函数作用域中的变量的函数
 
@@ -1171,19 +1269,22 @@ data[2]();
 * 箭头函数在严格和非严格模式下都绑定到 `window`
 * 普通函数在严格模式下绑定到 `undefined`，否则绑定到全局对象 `window`。
 
+**new**
+
+> ES6 为`new`命令引入了一个`new.target`属性，该属性一般用在构造函数之中，返回`new`命令作用于的那个构造函数。如果构造函数不是通过`new`命令或`Reflect.construct()`调用的，`new.target`会返回`undefined`          —— [阮一峰 - ES6 入门](https://es6.ruanyifeng.com/?search=new.target&x=0&y=0#docs/class#new-target-%E5%B1%9E%E6%80%A7)
+
+* 箭头函数不能做构造函数，使用 `new` 会抛出错误
+* 箭头函数不支持`new.target`
+
 **参数**
 
 * 箭头函数的 `this` 指向全局时，使用 `arguments` 会报未声明的错误；`this` 指向普通函数时，`arguments` 继承自该普通函数；查找方式类似于作用域链查询
 
   可以使用 ES6 的 `rest` 参数（即 `...` 扩展符）来获取不定数量的参数
 
-**new **
+**迭代**
 
-> ES6 为`new`命令引入了一个`new.target`属性，该属性一般用在构造函数之中，返回`new`命令作用于的那个构造函数。如果构造函数不是通过`new`命令或`Reflect.construct()`调用的，`new.target`会返回`undefined`          —— [阮一峰 - ES6 入门](https://es6.ruanyifeng.com/?search=new.target&x=0&y=0#docs/class#new-target-%E5%B1%9E%E6%80%A7)
-
-* 箭头函数不能做构造函数，使用 `new` 会抛出错误
-
-* 箭头函数不支持`new.target`
+* 箭头函数不可以使用 yield 命令，因此不能用作 Generator 函数
 
 
 
@@ -1279,6 +1380,76 @@ console.log(tmp.a) // 1
 完整总结见：[JS 基础 | new 和 Object.create() 有什么区别](https://blog.csdn.net/qq_44537414/article/details/114401207)
 
 [模拟 Object.create 实现](handwrite/JavaScript-hw?id=_3-%e5%a6%82%e4%bd%95%e6%a8%a1%e6%8b%9f-objectcreate)
+
+
+
+### 2. `Object.defineProperty` 与 `proxy`
+
+[ES6 系列之 defineProperty 与 proxy](https://github.com/mqyqingfeng/Blog/issues/107)
+
+[Object.defineProperty() —— MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty)
+
+[Proxy - MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Proxy)
+
+> vue 2 使用 defineProperty 通 getter / setter 进行数据劫持
+>
+> vue 3 换成 Proxy, 存在向下兼容问题
+
+> Object.defineProperty(obj, prop, descriptor)
+
+> 属性描述符包含 `value`，`writable`（可写），`enumerable`（可枚举）和 `configurable`（可配置）等
+
+> 如果一个描述符同时拥有 `value` 或 `writable` （数据描述符）和 `get` 或 `set` （存取描述符） 键，则会产生一个异常
+
+Proxy
+
+- 代理的是**对象**
+- 可以拦截到数组的变化
+- 拦截的方法多达13种
+- 返回一个拦截后的数据
+- 浏览器支持度较 `Object.defineProperty` 更差
+
+Object.defineProperty
+
+- 代理的是**属性**
+- 对数组数据的变化无能为力
+- 只能重定义属性的读取（get）和设置（set）行为
+- 直接修改原始数据
+- 兼容性好,支持IE9
+
+
+
+### 3. Generator
+
+[Generator - MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Generator)
+
+[【转向 Javascript 系列】深入理解 Generators](http://www.alloyteam.com/2016/02/generators-in-depth/)
+
+[ES6 系列之 Generator 的自动执行](https://github.com/mqyqingfeng/Blog/issues/99)
+
+> **生成器**对象是由一个 [generator function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function*) 返回的,并且它符合[可迭代协议](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Iteration_protocols#iterable)和[迭代器协议](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Iteration_protocols#iterator)
+
+```javascript
+function* gen() {
+  yield 1;
+  yield 2;
+  yield 3;
+}
+
+let g = gen();
+g.next();
+g.next();
+g.next();
+g.next();
+```
+
+**运行原理：**
+
+* Regenerator 通过工具函数将生成器函数包装，为其添加如 next/return 等方法。
+* 同时也对返回的生成器对象进行包装，使得对 next 等方法的调用，最终进入由 switch case 组成的**状态机模型**中。
+* 除此之外，利用闭包技巧，保存生成器函数上下文信息。
+
+[Babel Try it out](https://babeljs.io/repl/#?browsers=defaults%2C%20not%20ie%2011%2C%20not%20ie_mob%2011&build=&builtIns=usage&spec=false&loose=false&code_lz=GYVwdgxgLglg9mAVAAgKYA8CGBbADgG1QAoBKZAbwChlkBPGVfAE2QEYBuauh55AJk416jFgGZOAX0oA3TACdkMKKjkBeDDgLESnJSoB0YDFFLsgA&debug=false&forceAllTransforms=true&shippedProposals=false&circleciRepo=&evaluate=false&fileSize=false&timeTravel=true&sourceType=module&lineWrap=true&presets=env%2Cstage-0&prettier=true&targets=&version=7.13.12&externalPlugins=)
 
 
 
@@ -1463,7 +1634,7 @@ const b = new B();
 
 ## 八、继承
 
-> JavaScript 主要通过原型链实现继承。                      —— 《JavaScript高级程序设计》
+> JavaScript 主要通过**原型链**实现继承。                      —— 《JavaScript高级程序设计》
 
 [JavaScript高级程序设计 P162]()
 
@@ -1785,6 +1956,8 @@ MyClass.prototype.myMethod = function() {
 
 > `class`本质虽然是个函数，但是并不会像函数一样提升至作用域最顶层
 
+> `class` 只是现有[[Prototype]]（委托！）机制的一种语法糖
+
 **特点**
 
 * 在`constructor`中`var`一个变量，它只存在于`constructor`这个构造函数中
@@ -1882,6 +2055,8 @@ Rice.getFoodPrice();
 
 立即执行函数
 
+**坑点：** 前一表达式必须加 `;`，不会自动加
+
 - 当圆括号出现在匿名函数的末尾想要调用函数时，它会默认将函数当成是函数声明。
 - 当圆括号包裹函数时，它会默认将函数作为表达式去解析，而不是函数声明。
 
@@ -1921,11 +2096,21 @@ var counter = (function(){
 
 **是什么**
 
-柯里化是一种将使用多个参数的一个函数转换成一系列使用一个参数的函数的技术
+柯里化是一种函数的转换，将一个函数从可调用的 `f(a, b, c)` 转换为可调用的 `f(a)(b)(c)`。它并<u>不会调用函数</u>。
+
+如果参数数量不足，则返回偏函数。
 
 **为什么**
 
 可以实现**参数复用**，降低通用性，提高适用性
+
+**要求**
+
+柯里化要求函数<u>具有固定数量的参数</u>
+
+**怎么实现的**
+
+[模拟 curry](handwrite/JavaScript-hw?id=_1-函数柯里化)
 
 
 
@@ -2098,7 +2283,251 @@ new Promise((resolve, reject) => reject('rejected'))
 
 
 
-## 十二、追新
+## 十二、事件循环
+
+[详解JavaScript中的Event Loop（事件循环）机制](https://zhuanlan.zhihu.com/p/33058983)
+
+[Node.js 事件循环，定时器和 `process.nextTick()`](https://nodejs.org/zh-cn/docs/guides/event-loop-timers-and-nexttick/)
+
+[【建议星星】要就来45道Promise面试题一次爽到底(1.1w字用心整理)](https://juejin.cn/post/6844904077537574919)
+
+> JavaScript 是一门单线程的非阻塞的脚本语言
+>
+> 单线程主要是为保证程序执行的一致性（如多线程则可同时操作DOM，复杂同步）
+
+**是什么**
+
+是一种解决 Javascript 单线程运行时不阻塞的机制
+
+**为什么**
+
+遇到耗时任务，同步任务效率低，事件循环机制可以让 JS 具有处理异步的能力，提高效率，从而实现”非阻塞“
+
+**怎么做的**
+
+| 宏任务                  | 浏览器 | Node |
+| :---------------------- | ------ | ---- |
+| `I/O`                   | ✅      | ✅    |
+| `setTimeout`            | ✅      | ✅    |
+| `setInterval`           | ✅      | ✅    |
+| `setImmediate`          | ❌      | ✅    |
+| `requestAnimationFrame` | ✅      | ❌    |
+
+| 微任务                       | 浏览器 | Node |
+| ---------------------------- | ------ | ---- |
+| `process.nextTick`           | ❌      | ✅    |
+| `MutationObserver`           | ✅      | ❌    |
+| `Promise.then catch finally` | ✅      | ✅    |
+
+1. 浏览器
+   * 引擎执行过程中遇到异步事件，将事件挂起，先继续执行执行栈中的其他任务
+   * 异步任务返回结果后，将其回调函数加入到任务队列
+   * 执行栈的任务执行完毕后，主线程去查看任务队列中是否有任务
+   * 有，则将首位任务取出，将回调函数放入执行栈，执行同步代码
+   * 如遇到异步代码，则继续重复开头的流程
+   * 其中，任务队列分为微任务队列和宏任务队列，先清空微任务队列，再处理宏任务队列。同次事件循环中，微任务总在宏任务前执行。
+
+![浏览器事件循环机制](../image/language/JS-浏览器事件循环机制.png)
+
+2. Node.js
+   * node 中的事件循环存在于 libuv 引擎中
+   * 在I/O事件的回调中，`setImmediate` 方法的回调永远在 `timer` 的回调前执行，否则，两种方法的次序无法判断
+   * 每个阶段都有一个 FIFO 队列来执行回调
+   * 任何时候在给定的阶段中调用 `process.nextTick()`，所有传递到 `process.nextTick()` 的回调将在事件循环继续之前解析
+   * 各个阶段：
+     * **定时器**：本阶段执行已经被 `setTimeout()` 和 `setInterval()` 的调度回调函数。
+     * **待定回调**：执行延迟到下一个循环迭代的 I/O 回调。
+     * **idle, prepare**：仅系统内部使用。
+     * **轮询**：检索新的 I/O 事件;执行与 I/O 相关的回调（几乎所有情况下，除了关闭的回调函数，那些由计时器和 `setImmediate()` 调度的之外），其余情况 node 将在适当的时候在此阻塞。
+     * **检测**：`setImmediate()` 回调函数在这里执行。
+     * **关闭的回调函数**：一些关闭的回调函数，如：`socket.on('close', ...)`。
+
+```
+   ┌───────────────────────────┐
+┌─>│           timers          │
+│  └─────────────┬─────────────┘
+│  ┌─────────────┴─────────────┐
+│  │     pending callbacks     │
+│  └─────────────┬─────────────┘
+│  ┌─────────────┴─────────────┐
+│  │       idle, prepare       │
+│  └─────────────┬─────────────┘      ┌───────────────┐
+│  ┌─────────────┴─────────────┐      │   incoming:   │
+│  │           poll            │<─────┤  connections, │
+│  └─────────────┬─────────────┘      │   data, etc.  │
+│  ┌─────────────┴─────────────┐      └───────────────┘
+│  │           check           │
+│  └─────────────┬─────────────┘
+│  ┌─────────────┴─────────────┐
+└──┤      close callbacks      │
+   └───────────────────────────┘
+```
+
+![图例](../image/language/JS-node事件循环.png)
+
+
+
+## 十三、模块化
+
+> 模块模式，利用闭包特性实现数据私有化的形式
+>
+> ES6的模块没有“行内”格式，必须被定义在独立的文件中（一个文件一个模块）
+>
+>  —— 《你不知道的 JS》
+
+[前端模块化的十年征程](https://mp.weixin.qq.com/s/oYQf_m-TvH2txc1AfAvtsA)
+
+[前端模块化的前世今生](https://mp.weixin.qq.com/s/88q3P-rRDxVSD7HJxYAigg)
+
+[npm install的实现原理？](https://www.zhihu.com/question/66629910/answer/273992383)
+
+[前端科普系列-CommonJS：不是前端却革命了前端](https://zhuanlan.zhihu.com/p/113009496)
+
+[commonJS 和 ES Module 区别](https://zhuanlan.zhihu.com/p/161015809)
+
+![模块化](../image/language/JS-模块化.jpg)
+
+**是什么**
+
+广义上来解释
+
+- 外部的模块: 指代引入前端工程的某个外部的包(package),可能由多个JS文件组成，但会通过入口暴露给我们项目调用
+- 内部的模块: 指代我们自己的工程项目中编码的最小单元： 即单个的JS文件
+
+**为什么**
+
+模块化存在的意义就是为了**增加可复用性**，以尽可能少的代码是实现个性化的需求
+
+1. 变量都拥有了自己的作用域，而不是直接挂载到全局，有效解决了<u>命名冲突</u>。
+2. 让所有的模块都保持单一职责，显著的提升了<u>开发效率</u>以及代码的<u>可维护性</u>。
+3. 重复代码不再通过拷贝，而是通过模块引入的方式实现，提升了代码的复用性。
+4. 可以使用包管理工具，直接在使用网络上开源的模块。
+
+**怎么做**
+
+> CMD正是在sea.js推广的过程中逐步确立的规范，并不是CMD诞生了sea.js。相反，是sea.js诞生了CMD。
+>
+> CMD和AMD并不是互斥的，require.js和sea.js也并不是完全不同，实际上，通过阅读API文档我们会发现，CMD后期规范容纳了AMD的一些写法。
+
+1. 外部模块管理
+
+   * 下载文件，`script` 引入
+
+   * NPM ，一个远程的JavaScript代码仓库，解决了外部模块的管理问题
+
+2. 内部模块组织
+
+   * 原生 JS，借助 IIFE 组织模块，尽量避免污染全局作用域
+
+     特点：复杂依赖关系难处理，同步加载易卡顿，命名冲突
+
+   * **CommonJS** 的模块化方案是JavaScript社区第一次在模块系统上取得的成果
+
+     不仅支持依赖管理，而且还支持作用域隔离和模块标识
+
+     * 缺少模块封装的能力：一个模块一个文件，浏览器不友好，需要发较多请求
+     * 使用同步的方式加载依赖：可能导致浏览器长时间白屏
+     * 使用一个名为 `export` 的对象来暴露模块
+
+     > 当时 Node.js 也采用了 `CommonJS` 的模块化规范
+     >
+     > v13.2 版本开始，Node.js 已经默认打开了 ES6 Module 的支持，但需要：
+     >
+     > 1. 更改 `.js` 为 `.mjs`，并使用 `node index.mjs`
+     > 2. `package.json`添加字段`"type": "module"`，如此所有 `.js` 均被识别为 ES Module
+
+   * **AMD** 设计规范，异步模块定义 => `define` / `require`
+
+     `define` 能自定义模块而 `require` 不能，`require` 的作用是执行模块加载
+
+     特点：依赖前置，数组形式提前声明；<u>异步加载</u>，避免阻塞；直接返回值
+
+   * **CMD** 设计规范，通用模块定义 => 接受 factory 函数 
+
+     `require` 为动态获取依赖模块，倾向懒加载
+
+     特点：就近调用 `require` 动态引用依赖；异步加载，避免阻塞；`module.exports` 形式返回
+
+   * **ES Module** 是 ES 组织官方推出的模块化方案，相比于 CommonJS 和 AMD 方案，ESM采用了<u>完全静态化</u>的方式进行模块的加载，静态化也为后来的打包工具提供了便利，并且能友好的支持 tree shaking
+
+```javascript
+// CMD
+define(function(requie, exports, module){    
+	//依赖就近书写
+	var module1 = require('Module1');
+	var result1 = module1.exec();
+    module.exports = {
+      result1: result1,    
+	}
+});
+
+// AMD
+define(['Module1'], function(module1){  
+	var result1 = module1.exec();
+    return {
+		result1: result1,
+	}
+});
+```
+
+```javascript
+// ES6
+import { foo } from './foo';
+export const bar = 1;
+
+// CommonJS
+const foo = require('./foo');
+module.exports = {
+	bar: 1
+}
+```
+
+##### ESM 与 CommonJS 的差异
+
+![图表对比](../image/language/JS-模块化方案区别.jpg)
+
+* 一个使用 `import/export` 语法，一个使用 `require/module` 语法。
+* ESM 导入模块的变量都是强绑定，导出模块的变量一旦发生变化，对应导入模块的变量也会跟随变化，而 CommonJS 中导入的模块都是值传递与引用传递，类似于函数传参
+* CommonJS 输出是值的拷贝，ES6 Module 输出的是值的引用，被输出模块的内部的改变会影响引用的改变；
+* CommonJS `this`指向当前模块，ES6 Module 默认开启严格模式 `this`指向`undefined`
+
+```javascript
+// a.js
+const mod = require('./b')
+
+setTimeout(() => {
+  console.log(mod) // first value
+}, 1000)
+
+// b.js
+let mod = 'first value'
+
+setTimeout(() => {
+  mod = 'second value'
+}, 500)
+
+module.exports = mod
+```
+
+```javascript
+// a.mjs
+import { mod } from './b.mjs'
+
+setTimeout(() => {
+  console.log(mod) // second value
+}, 1000)
+
+// b.mjs
+export let mod = 'first value'
+
+setTimeout(() => {
+  mod = 'second value'
+}, 500)
+```
+
+
+
+## 十四、追新
 
 ### 1. 常用的 ES6 特性
 
@@ -2112,13 +2541,13 @@ new Promise((resolve, reject) => reject('rejected'))
 
 
 
-## 十三、AJAX
+## 十五、AJAX
 
 [异步网络请求xhr、ajax、fetch与axios对比](https://juejin.cn/post/6844904058466074637)
 
 
 
-## 十四、一些定义
+## 十六、一些定义
 
 ### 1. 为什么是解释型语言
 
@@ -2147,7 +2576,7 @@ new Promise((resolve, reject) => reject('rejected'))
 
 
 
-## 十五、其他
+## 十七、其他
 
 ### 1. `encodeURIComponent` 和 `encodeURI` 的区别
 
@@ -2172,3 +2601,36 @@ new Promise((resolve, reject) => reject('rejected'))
 ### 2. 类数组对象
 
 [JavaScript深入之类数组对象与arguments](https://github.com/mqyqingfeng/Blog/issues/14)
+
+
+
+### 3. 自动分号
+
+[极客时间 - 重学前端]()
+
+JavaScript提供了相对可用的分号补全规则，包括
+
+1.有**换行符**，且**下一个符号是不符合语法**的，尝试插入分号
+
+```javascript
+let a = 1
+let b = 1
+```
+
+2.有**换行符**，且语法规定**此处不能有换行符**，自动插入分号
+
+![图例](https://cdn.nlark.com/yuque/0/2020/jpeg/451516/1587483534093-7d0ac863-9068-4c34-97e3-996739f8a20c.jpeg)
+
+3.代码结束处，**不能形成完整的脚本或模块结构**，自动插入分号
+
+**！以下情况需要注意：**
+
+0. 带换行符的注释也被认为是有换行符
+
+1. **括号开头**  IIFE 立即执行函数表达式！
+
+2. **数组开头**
+
+3. **斜杠开头**  正则表达式！
+
+4. **反引号开头**  模板字符串！
