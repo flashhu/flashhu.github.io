@@ -5,6 +5,7 @@
   - [JavaScript](language/JavaScript.md)
 - 深入
   - [JavaScript](handwrite/JavaScript-hw.md)
+  - [Promise](handwrite/promise.md)
   - [设计模式](handwrite/design-patterns-hw.md)
   - [跨域相关](handwrite/cross-origin-hw.md)
 - React

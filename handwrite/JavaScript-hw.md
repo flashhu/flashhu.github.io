@@ -42,7 +42,7 @@ function myNew() {
 // left 表示左表达式，right 表示右表达式
 function myInstanceOf(left, right) {
     // 1. 如为基础类型，直接返回 false
-    if(typeof(left) !== 'object' || left === null) {
+    if ((typeof left !== 'object' && typeof left !== 'function') || left === null) {
         return false;
     }
     // 2. 取 right 的显示原型，left 的隐式原型
@@ -315,27 +315,13 @@ var new_data = JSON.parse(JSON.stringify(data));
 
 
 
-## 四、异步
-
-[9k字 | Promise/async/Generator实现原理解析](https://juejin.cn/post/6844904096525189128)
-
-### 1.  `Promise`
-
-
-
-### 2. `async / await`
-
-
-
-### 3. `Generator`
-
-
-
-## 五、函数
+## 四、函数
 
 ### 1. 函数柯里化
 
-整理思路为：用闭包把参数保存起来，当参数的数量足够执行函数了，就开始执行函数
+**主要思路**
+
+判断当前传入函数的参数个数 (args.length) 是否大于等于原函数所需参数个数 (fn.length) ，如果是，则执行当前函数；如果是小于，则返回一个函数
 
 **不定长简易**
 
@@ -344,23 +330,22 @@ var new_data = JSON.parse(JSON.stringify(data));
 整体思路为闭包加递归，自定义 `valueOf` 方法
 
 ```javascript
-const add = function(sum) {
-    const fn = function(n) {
-        return add(n + sum);
-    };
+function add(sum) {
+    var fn = function(n) {
+        return add(sum + n);
+    }
 
     fn.valueOf = function() {
         return sum;
-    };
+    }
 
     return fn;
 }
 
-/** Test **/
-add(1); // Function
-add(1); // 1
-add(1)(2); // 3
-add(1)(2)(3); // 5
+console.log(add(1)); // Function
+console.log(+add(1)); // 1
+console.log(+add(1)(2)); // 3
+console.log(+add(1)(2)(3)); // 6
 ```
 
 **定长简易**
@@ -368,6 +353,18 @@ add(1)(2)(3); // 5
 [现代 JavaScript 教程 - 柯里化](https://zh.javascript.info/currying-partials)
 
 不支持乱序输入
+
+```javascript
+function curry(func, ...args) {
+    if(func.length <= args.length) {
+        return func.apply(this, args);
+    } else {
+        return function (...curryArgs) {
+            return curry(func, ...args, ...curryArgs);
+        }
+    }
+}
+```
 
 ```javascript
 function curry(func) {
@@ -446,3 +443,115 @@ function curry(fn, args, holes) {
     }
 }
 ```
+
+
+
+## 五、实际相关
+
+### 1. 防抖
+
+[JavaScript专题之跟着underscore学防抖](https://github.com/mqyqingfeng/Blog/issues/22)
+
+> 事件多次触发，只有当n秒内不再触发才执行，否则重新计时
+>
+> 重在清除定时器
+
+适用场景如：文本编辑器实时保存，调整页面大小
+
+**基础版**
+
+处理 this 指向，event 对象
+
+此处注意：如 setTimeout 内未使用箭头函数，需提前获取 this
+
+```javascript
+const debounce = (func, delay) => {
+  let timeout;
+  return function () {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      func.apply(this, arguments);
+    }, delay);
+  };
+};
+```
+
+**进阶版**
+
+增加立即执行
+
+```javascript
+const debounce = (func, delay, immediate) => {
+  let timeout;
+  return function () {
+    if (timeout) clearTimeout(timeout);
+    const callNow = !timeout;
+    timeout = setTimeout(() => {
+      func.apply(this, arguments);
+    }, delay);
+    if (immediate && callNow) func.apply(this, arguments);
+  };
+}
+```
+
+
+
+### 2. 节流
+
+[JavaScript专题之跟着 underscore 学节流](https://github.com/mqyqingfeng/Blog/issues/26)
+
+> 一段时间内只执行一次
+>
+> 重在控制标志位
+
+适用场景如：获取滚动条位置 scroll
+
+**基础版**
+
+```javascript
+// 依靠时间戳 => 有头无尾
+const throttle = (func, delay) => {
+  let previous = 0;
+  return function () {
+    const context = this;
+    let now = +new Date();
+    if (now - previous > delay) {
+      func.apply(context, arguments);
+      previous = now;
+    }
+  };
+};
+
+// 依靠定时器 => 无头有尾
+const throttle = (func, delay) => {
+  let tag = false;
+  return function () {
+    if (!tag) {
+      tag = true;
+      setTimeout(() => {
+        func.apply(this, arguments);
+        tag = false;
+      }, delay);
+        // 移动位置，也可改造为立即执行
+        // func.apply(this, arguments);
+    }
+  };
+};
+```
+
+1. 第一种事件会立刻执行，第二种事件会在 n 秒后第一次执行
+2. 第一种事件停止触发后没有办法再执行事件，第二种事件停止触发后依然会再执行一次事件
+
+
+
+#### 坑点
+
+**在 React 的函数式组件中用防抖/节流好像没用？？**
+
+[踩坑实例 TAT](https://github.com/flashhu/or-blog/blob/master/site/src/page/edit/index.js#L123)
+
+[在react函数式组件中使用防抖与节流函数](https://zhuanlan.zhihu.com/p/88799841)
+
+原因：函数组件每次渲染结束之后，内部的变量都会被释放，重新渲染时所有的变量会被**重新初始化**，产生的结果就是每一次都注册和执行了setTimeout函数。
+
+解决办法：利用 `useRef` 或 `useCallback`

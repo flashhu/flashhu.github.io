@@ -121,7 +121,7 @@ JS 采用双精确度，用 64 位字节来储存一个浮点数
 
 
 
-### 5. 说说 `symbol`  ？
+### 5. 说说 `symbol`  
 
 [MDN - Symbol](https://developer.mozilla.org/zh-CN/docs/Glossary/Symbol)
 
@@ -147,8 +147,6 @@ console.log(sym1, sym2); // Symbol() Symbol(test)
 ```
 
 需要注意的是，`symbol` 类型的值**不可以使用 `new`**  运算符来创建，因为 `Symbol` 函数返回的为 symbol 值，非对象，会抛出`TypeError`，提示此时非构造函数；
-
-> 待解决疑问：`new` 调用构造函数时，如返回值不是对象但为基本类型，不是会忽略返回值吗？为何此处抛出错误？
 
 同时，`symbol` 类型作为属性名时，该属性是**匿名，不可枚举**的。
 
@@ -967,6 +965,18 @@ for (var i = 0; i < 3; j++) {
 
 [JavaScript深入之作用域链](https://github.com/mqyqingfeng/Blog/issues/6)
 
+> 函数有 [[scope]]，[[scope]] 就是所有父变量对象的层级链
+>
+> 执行上下文有 Scope，作用域链
+
+当查找变量的时候，会先从当前上下文的变量对象中查找
+
+如果没有找到，就会从父级(词法层面上的父级)执行上下文的变量对象中查找
+
+一直找到全局上下文的变量对象，也就是全局对象。
+
+这样由多个执行上下文的变量对象构成的链表就叫做作用域链。
+
 
 
 ## 三、垃圾回收
@@ -1094,7 +1104,11 @@ V8的垃圾回收策略主要是基于`分代式垃圾回收机制`，其根据*
 
 **为什么**
 
-即使创建它的执行上下文被销毁，也依然能凭借作用域链访问到变量值，因为函数<u>作用域并未被清除</u>。
+虽然创建它的执行上下文在执行完毕后，从执行栈中移出，
+
+但闭包的作用域链中依然保存了它的活动对象
+
+因此还能访问到该函数作用域中的变量值
 
 > 1. 在后台执行环境中，闭包的作用域链包含它自己的作用域，包含函数的作用域和全局的作用域
 >
@@ -1104,7 +1118,7 @@ V8的垃圾回收策略主要是基于`分代式垃圾回收机制`，其根据*
 
 **特点**
 
-* 正因为闭包携带了包含它的函数的作用域，并且会阻止垃圾回收机制释放内存，它会比其他函数<u>占用更多空间</u>，所以需要避免过度使用闭包
+* 正因为闭包携带了包含完整的作用域链，包含理应被销毁的另一函数作用域的活动对象，它会阻止垃圾回收机制释放内存，比其他函数<u>占用更多空间</u>，所以需要避免过度使用闭包
 
   > 闭包保存了整个变量对象（AO / VO）
 
@@ -1146,7 +1160,7 @@ data[2]();
 
 **需要注意的地方**
 
-受垃圾回收机制影响，在某些老版浏览器（IE9 之前），如闭包的作用域链中保存 HTML 元素，则该元素将无法被销毁
+受垃圾回收机制策略影响，在某些老版浏览器（IE9 之前），如闭包的作用域链中保存 HTML 元素，则该元素将无法被销毁
 
 
 
@@ -1369,7 +1383,7 @@ console.log(tmp.a) // 1
 
 
 
-### 1. `new`  和 `Object.create()` 的区别 ？
+### 1. `new`  和 `Object.create()` 的区别 
 
 [js继承实现之Object.create](https://segmentfault.com/a/1190000014592412)
 
@@ -1390,6 +1404,10 @@ console.log(tmp.a) // 1
 [Object.defineProperty() —— MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty)
 
 [Proxy - MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Proxy)
+
+[到底该如何回答：vue数据绑定的实现原理？](https://mp.weixin.qq.com/s/gaExqjCt49EqElAaFTcgjA)
+
+> 误入 Vue 坑了 哈哈哈
 
 > vue 2 使用 defineProperty 通 getter / setter 进行数据劫持
 >
@@ -1417,6 +1435,78 @@ Object.defineProperty
 - 直接修改原始数据
 - 兼容性好,支持IE9
 
+```javascript
+(function(){
+    var root = this;
+    function watch(obj, name, func){
+        var value = obj[name];
+
+        Object.defineProperty(obj, name, {
+            get: function() {
+                return value;
+            },
+            set: function(newValue) {
+                value = newValue;
+                func(value)
+            }
+        });
+
+        if (value) obj[name] = value
+    }
+
+    this.watch = watch;
+})()
+
+var obj = {
+    value: 1
+}
+
+watch(obj, "value", function(newvalue){
+    document.getElementById('container').innerHTML = newvalue;
+})
+
+document.getElementById('button').addEventListener("click", function(){
+    obj.value += 1
+});
+```
+
+```javascript
+(function() {
+    var root = this;
+
+    function watch(target, func) {
+
+        var proxy = new Proxy(target, {
+            get: function(target, prop) {
+                return target[prop];
+            },
+            set: function(target, prop, value) {
+                target[prop] = value;
+                func(prop, value);
+            }
+        });
+
+        return proxy;
+    }
+
+    this.watch = watch;
+})()
+
+var obj = {
+    value: 1
+}
+
+var newObj = watch(obj, function(key, newvalue) {
+    if (key == 'value') document.getElementById('container').innerHTML = newvalue;
+})
+
+document.getElementById('button').addEventListener("click", function() {
+    newObj.value += 1
+});
+```
+
+
+
 
 
 ### 3. Generator
@@ -1428,6 +1518,10 @@ Object.defineProperty
 [ES6 系列之 Generator 的自动执行](https://github.com/mqyqingfeng/Blog/issues/99)
 
 > **生成器**对象是由一个 [generator function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function*) 返回的,并且它符合[可迭代协议](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Iteration_protocols#iterable)和[迭代器协议](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Iteration_protocols#iterator)
+
+> 生成器函数用 function*声明，使用 yield 返回值。
+>
+> run-pause-run 模式，即生成器函数可以在函数运行中被暂停一次或多次
 
 ```javascript
 function* gen() {
@@ -1450,6 +1544,39 @@ g.next();
 * 除此之外，利用闭包技巧，保存生成器函数上下文信息。
 
 [Babel Try it out](https://babeljs.io/repl/#?browsers=defaults%2C%20not%20ie%2011%2C%20not%20ie_mob%2011&build=&builtIns=usage&spec=false&loose=false&code_lz=GYVwdgxgLglg9mAVAAgKYA8CGBbADgG1QAoBKZAbwChlkBPGVfAE2QEYBuauh55AJk416jFgGZOAX0oA3TACdkMKKjkBeDDgLESnJSoB0YDFFLsgA&debug=false&forceAllTransforms=true&shippedProposals=false&circleciRepo=&evaluate=false&fileSize=false&timeTravel=true&sourceType=module&lineWrap=true&presets=env%2Cstage-0&prettier=true&targets=&version=7.13.12&externalPlugins=)
+
+
+
+### 4. for of , for in 和 forEach,map 的区别
+
+[【面试篇】寒冬求职季之你必须要懂的原生JS(上)](https://juejin.cn/post/6844903815053852685#heading-2)
+
+**`for of` 遍历数组元素，`for in` 遍历对象属性**
+
+- for...of循环：具有 iterator 接口， 遍历就可以用for...of循环遍历它的成员(属性值)。for...of循环可以使用的范围包括<u>数组、Set 和 Map 结构、某些类似数组的对象、Generator 对象，以及字符串</u>。for...of循环调用遍历器接口，数组的遍历器接口只返回具有数字索引的属性。对于普通的对象，for...of结构不能直接使用，会报错，必须部署了 Iterator 接口后才能使用。可以中断循环。
+- for...in循环：遍历对象自身的和继承的可枚举的属性, 不能直接获取属性值。可以中断循环。
+- forEach: 只能遍历数组，不能中断，没有返回值(或认为返回值是undefined)。
+- map: 只能遍历数组，不能中断，返回值是修改后的数组
+
+```javascript
+let arr = [1, 2, 3]
+let obj = {
+    a: 1,
+    b: 2
+}
+
+for(let i of arr) {
+    console.log(i);
+}
+
+for (let i in arr) {
+    console.log(arr[i]);
+}
+
+for (let i in obj) {
+    console.log(i);
+}
+```
 
 
 
@@ -1523,13 +1650,38 @@ console.log(User.prototype.constructor === User) // true
 
 默认提供的 `prototype` 具有 `constructor` 属性，指向关联的构造函数。
 
-但需要注意的是，如果我们将 ``prototype`` 完全替换，会不再具有 ``constructor`` 属性。
+但需要注意的是，如果我们将 ``prototype`` 完全替换， ``constructor`` 属性也会发生改变。
+
+```javascript
+function Parent() {}
+function Child() {}
+
+console.log(Child.prototype.constructor); // [Function: Child]
+
+Child.prototype = Object.create(Parent.prototype);
+console.log(Child.prototype.constructor); // [Function: Parent]
+
+Child.prototype = new Parent();
+console.log(Child.prototype.constructor); // [Function: Parent]
+
+Child.prototype = {a: 'a'};
+console.log(Child.prototype.constructor); // [Function: Object]
+
+Child.prototype = 'a';
+console.log(Child.prototype.constructor); // [Function: String]
+
+Child.prototype = null;
+// TypeError: Cannot read property 'constructor' of null
+console.log(Child.prototype.constructor); 
+```
 
 
 
 ### 3. `__proto__` 的替代项
 
-> 出于性能考虑，应尽量避免使用 `Object.setPrototypeOf` 修改原型，使用 `Object.create` 替代
+> 当`Object.prototype.__proto__` 已被大多数浏览器厂商所支持的今天，其存在和确切行为仅在ECMAScript 2015规范中被标准化为传统功能.
+>
+> 出于性能考虑，应尽量避免使用 `Object.setPrototypeOf` 修改原型，使用 `Object.create` 替代   —— [MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/proto)
 
 - [Object.create(proto, [descriptors])](https://developer.mozilla.org/zh/docs/Web/JavaScript/Reference/Global_Objects/Object/create) —— 利用给定的 `proto` 作为 `[[Prototype]]` 和可选的属性描述来创建一个空对象。
 - [Object.getPrototypeOf(obj)](https://developer.mozilla.org/zh/docs/Web/JavaScript/Reference/Global_Objects/Object/getPrototypeOf) —— 返回对象 `obj` 的 `[[Prototype]]`。
@@ -1600,6 +1752,8 @@ console.log(Apple.prototype.isPrototypeOf(a)) // true
 
 [如何回答面试中的JavaScript原型链问题](https://zhuanlan.zhihu.com/p/356980105)
 
+> 由相互关联的原型组成的链状结构就是原型链
+
 **概念**
 
 原型链是指由 `__proto__` 串起来的一条链路
@@ -1632,9 +1786,53 @@ const b = new B();
 
 <img src="../image/language/JS-原型链2.jpg" alt="原型链图例" style="zoom:80%;" />
 
+注意：使用 `class` 继承时，子类构造函数的 `__proto__` 会指向父类，这是因为 `extends` 的实现中有这一步。但使用函数进行继承操作并不会！
+
+```javascript
+function Parent1(name) {
+    this.name = name
+}
+
+function Child1(name) {
+    Parent1.call(this, name);
+}
+
+Child1.prototype = Object.create(Parent1.prototype);
+
+const a = new Child1('a');
+console.log(a);
+console.log(Child1.__proto__, Parent1);
+
+class Parent2 {
+    constructor(name) {
+        this.name = name;
+    }
+}
+
+class Child2 extends Parent2 {
+    constructor(props) {
+        super(props);
+    }
+}
+
+const b = new Child2('b');
+console.log(b);
+console.log(Child2.__proto__, Parent2);
+```
+
+
+
 ## 八、继承
 
 > JavaScript 主要通过**原型链**实现继承。                      —— 《JavaScript高级程序设计》
+
+> 继承意味着复制操作，JavaScript（默认）并不会复制对象属性。相反，JavaScript会在两个对象之间创建一个关联，这样一个对象就可以通过委托访问另一个对象的属性和函数。
+>
+> JavaScript中的机制有一个核心区别，那就是**不会进行复制**，对象之间是通过内部的[[Prototype]]链关联的。
+>
+> **委托**行为意味着某些对象在找不到属性或者方法引用时会把这个请求委托给另一个对象。
+>
+> JavaScript的<u>[[Prototype]]机制本质上就是行为委托机制</u>。                         —— 《你不知道的 JS》
 
 [JavaScript高级程序设计 P162]()
 
@@ -1665,7 +1863,7 @@ const b = new B();
 各种继承方式可依次问以下几个问题（灵魂五问）：
 
 * 能取到父类实例属性方法/原型属性方法吗？
-* 是否存在各子类实例共享父类实体属性的情况？
+* 是否存在各子类实例共享父类实例属性的情况？
 * 可以实现多继承，向父类构造函数传参吗？
 * 能否使用 `instanceof` 判断子类实例和父类的关系？
 * 构造函数被调用了几次？父类方法是能否复用？（使用 `new`，`Object.create` 可复用，只有 `call` 无复用 ）
@@ -1713,7 +1911,7 @@ console.log(child1.getName(), child1) // kevin
 
 **优点**：
 
-解决原型属性被<u>共享</u>的问题；
+解决引用类型属性被<u>共享</u>的问题；
 
 <u>可实现多继承</u>（父类实例属性方法）；可以向父类构造函数<u>传参</u>
 
@@ -1864,7 +2062,7 @@ console.log(person2.friends); // ["daisy", "kelly", "taylor"]
 
 只能继承父类原型属性方法，无法继承父类实例属性方法；
 
-存在实例共享原型属性的情况；
+存在实例共享实例属性的情况；
 
 不能函数复用（指手动添加的对象属性），效率低；
 
@@ -1956,7 +2154,7 @@ MyClass.prototype.myMethod = function() {
 
 > `class`本质虽然是个函数，但是并不会像函数一样提升至作用域最顶层
 
-> `class` 只是现有[[Prototype]]（委托！）机制的一种语法糖
+> `class` 只是现有[[Prototype]]（委托！）机制的一种**语法糖**
 
 **特点**
 
@@ -2049,11 +2247,35 @@ Rice.getFoodPrice();
 
 ## 九、函数
 
+### 0. 函数式编程
+
+[JS函数式编程指南](https://llh911001.gitbooks.io/mostly-adequate-guide-chinese/content/)
+
+[前端开发js函数式编程真实用途体现在哪里？ - Wang Namelos的回答 - 知乎 ](https://www.zhihu.com/question/59871249/answer/170400954)
+
+> JavaScript 并不是函数式编程语言, 只是兼容了一部分 FP 方法风格的使用技巧
+
+**特点**
+
+* 数据不可变
+* 纯函数：输出可预期，没有副作用
+* 组合性
+
+**代数效应**
+
+[写给那些搞不懂代数效应的我们（翻译）](https://zhuanlan.zhihu.com/p/76158581)
+
+> 代数效应是从函数式编程中脱胎的。它所解决的一部分问题只在纯函数式编程中才存在
+
+它允许我们跳回执行效应的代码继续执行，并且还可以夹带一点私货。
+
+
+
 ### 1. IIFE
 
 [译\] JavaScript：立即执行函数表达式（IIFE）](https://segmentfault.com/a/1190000003985390)
 
-立即执行函数
+立即执行函数。可用于保存闭包状态，捕获当前值。
 
 **坑点：** 前一表达式必须加 `;`，不会自动加
 
@@ -2080,14 +2302,14 @@ var counter = (function(){
             return ++i;
         }
     }
-    }());
-    counter.get();//0
-    counter.set(3);
-    counter.increment();//4
-    counter.increment();//5
+}());
+counter.get();//0
+counter.set(3);
+counter.increment();//4
+counter.increment();//5
 
-    conuter.i;//undefined (`i` is not a property of the returned object)
-    i;//ReferenceError: i is not defined (it only exists inside the closure)
+conuter.i;//undefined (`i` is not a property of the returned object)
+i;//ReferenceError: i is not defined (it only exists inside the closure)
 ```
 
 
@@ -2100,9 +2322,13 @@ var counter = (function(){
 
 如果参数数量不足，则返回偏函数。
 
+通俗来说，即为每次调用函数时，它只接受一部分参数，并返回一个函数，直到传递所有参数为止。
+
 **为什么**
 
-可以实现**参数复用**，降低通用性，提高适用性
+* 参数复用
+* 提前返回：返回只接受一部分参数的参数
+* 延迟执行：直到接收完所有函数后才执行
 
 **要求**
 
@@ -2173,8 +2399,6 @@ var new_data = JSON.parse(JSON.stringify(data));
 
 [JS 异步编程：种类和原理](https://hytonightyx.github.io/fedoc/03-JavaScript/%E5%BC%82%E6%AD%A5%E7%BC%96%E7%A8%8B%E4%B8%93%E9%A2%98.html)
 
-[【建议星星】要就来45道Promise面试题一次爽到底(1.1w字用心整理)](https://juejin.cn/post/6844904077537574919)
-
 ES6 诞生以前，异步编程的方法，大概有下面四种。
 
 - 回调函数
@@ -2184,29 +2408,75 @@ ES6 诞生以前，异步编程的方法，大概有下面四种。
 
 
 
-> Tips —— Promise:
->
-> `.then`和`.catch`都会返回一个新的`Promise`，返回任意一个非 `promise` 的值都会被包裹成 `promise` 对象
->
-> `.catch` 只会捕获最先的那个异常
->
-> `.then` 或者 `.catch` 的参数期望是函数，传入非函数则会发生值透传，如为语句，其实会执行
->
-> **`.then` 或者 `.catch` 中 `return` 一个 `error` 对象并不会抛出错误，所以不会被后续的 `.catch` 捕获**，`throw` 或 `Promise.reject()`会被捕获
->
-> `.finally()`方法不管`Promise`对象最后的状态如何都会执行，**回调不接受任何参数**，最终返回的默认会是一个**上一次的Promise对象值**
->
-> 链式调用后面的内容需要等前一个调用执行完才会执行
->
-> 紧跟着 `await` 后面的语句相当于放到了 `new Promise` 中，下一行及之后的语句相当于放在 `Promise.then` 中
->
-> 如果在 `async` 函数中抛出了错误，则终止错误结果，不会继续向下执行
+### 1. 回调函数
+
+优点是简单、容易理解
+
+缺点有：
+
+* **错误处理困难**
+  * 回调函数发生错误时，无法使用 try-catch 来处理错误。由于事件循环机制，回调执行和 try-catch 不会位于同一步骤中；
+  * 因此，一般回调函数要手动传入 err，来处理错误，也就产生了大量样板代码
+
+* **回调地狱**
+  * 回调套回调，执行连续步骤非常棘手
+
+* **代码耦合，维护困难**
+* 每个任务只能指定一个回调函数
 
 
 
-### 1. Promise几种状态，怎么改变
+### 2. 事件监听
+
+任务的执行不取决于代码的顺序，而取决于某个事件是否发生
+
+优点是比较容易理解，可以绑定多个事件，每个事件可以指定多个回调函数，而且可以（Decoupling），有利于实现[模块化](http://www.ruanyifeng.com/blog/2012/10/javascript_module.html)
+
+缺点是整个程序都要变成事件驱动型，运行流程会变得很不清晰。
+
+
+
+### 3. 发布/订阅
+
+与"事件监听"类似，但是可以了解存在多少信号、每个信号有多少订阅者，从而监控程序的运行。
+
+[模拟发布订阅模式](http://localhost:3000/#/handwrite/design-patterns-hw?id=_2-%e5%8f%91%e5%b8%83%e8%ae%a2%e9%98%85-emitter)
+
+
+
+### 4. Promise
+
+[【建议星星】要就来45道Promise面试题一次爽到底(1.1w字用心整理)](https://juejin.cn/post/6844904077537574919)
+
+**是什么**
 
 > **Promise** 对象用于表示一个异步操作的最终完成 (或失败)及其结果值。   —— [MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise)
+
+**为什么**
+
+原有回调函数式异步编程方案，嵌套层级多时，代码难以维护
+
+`promise` 将嵌套调用改为链式调用
+
+**注意点**
+
+* `.then`和`.catch`都会返回一个新的`Promise`，返回任意一个非 `promise` 的值都会被包裹成 `promise` 对象
+
+* `.catch` 只会捕获最先的那个异常
+
+* `.then` 或者 `.catch` 的参数期望是函数，传入非函数则会发生值透传，如为语句，其实会执行
+
+* **`.then` 或者 `.catch` 中 `return` 一个 `error` 对象并不会抛出错误，所以不会被后续的 `.catch` 捕获**，`throw` 或 `Promise.reject()`会被捕获
+
+* `.finally()`方法不管`Promise`对象最后的状态如何都会执行，**回调不接受任何参数**，最终返回的默认会是一个**上一次的Promise对象值**
+
+* 链式调用后面的内容需要等前一个调用执行完才会执行
+
+* 紧跟着 `await` 后面的语句相当于放到了 `new Promise` 中，下一行及之后的语句相当于放在 `Promise.then` 中
+
+* 如果在 `async` 函数中抛出了错误，则终止错误结果，不会继续向下执行
+
+#### 几种状态，怎么改变
 
 一个 `Promise` 必然处于以下几种状态之一，且 **`Promise` 的状态一经改变就不能再改变**：
 
@@ -2238,48 +2508,12 @@ new Promise((resolve, reject) => reject('rejected'))
 
 [模拟 Promise / async / await]()
 
-### 2. Promise.all与Promise.race有什么区别
+#### Promise.all与Promise.race有什么区别
 
 * `.all()`的作用是接收一组异步任务，然后并行执行异步任务，并且在**所有异步操作执行完**后才执行回调。
 
 * `.race()`的作用也是接收一组异步任务，然后并行执行异步任务，**只保留取第一个执行完成的异步操作**的结果，其他的方法仍在执行，不过执行结果会被抛弃。
 * `all` 和 `race`传入的数组中如果有会抛出异常的异步任务，那么只有最先抛出的错误会被捕获，并且是被`then`的第二个参数或者后面的`catch`捕获；但并不会影响数组中其它的异步任务的执行。
-
-
-
-### 3. 回调函数
-
-优点是简单、容易理解和部署
-
-缺点有：
-
-* **错误处理困难**
-  * 回调函数发生错误时，无法使用 try-catch 来处理错误。由于事件循环机制，回调执行和 try-catch 不会位于同一步骤中；
-  * 因此，一般回调函数要手动传入 err，来处理错误，也就产生了大量样板代码
-
-* **回调地狱**
-  * 回调套回调，执行连续步骤非常棘手
-
-* **代码耦合，维护困难**
-* 每个任务只能指定一个回调函数
-
-
-
-### 4. 事件监听
-
-任务的执行不取决于代码的顺序，而取决于某个事件是否发生
-
-优点是比较容易理解，可以绑定多个事件，每个事件可以指定多个回调函数，而且可以（Decoupling），有利于实现[模块化](http://www.ruanyifeng.com/blog/2012/10/javascript_module.html)
-
-缺点是整个程序都要变成事件驱动型，运行流程会变得很不清晰。
-
-
-
-### 5. 发布/订阅
-
-与"事件监听"类似，但是可以了解存在多少信号、每个信号有多少订阅者，从而监控程序的运行。
-
-[模拟发布订阅模式](http://localhost:3000/#/handwrite/design-patterns-hw?id=_2-%e5%8f%91%e5%b8%83%e8%ae%a2%e9%98%85-emitter)
 
 
 
@@ -2373,7 +2607,13 @@ new Promise((resolve, reject) => reject('rejected'))
 >
 > ES6的模块没有“行内”格式，必须被定义在独立的文件中（一个文件一个模块）
 >
->  —— 《你不知道的 JS》
+> 模块有两个主要特征：
+>
+> （1）为创建内部作用域而调用了一个包装函数；
+>
+> （2）包装函数的返回值必须至少包括一个对内部函数的引用，这样就会创建涵盖整个包装函数内部作用域的闭包。
+>
+> —— 《你不知道的 JS》
 
 [前端模块化的十年征程](https://mp.weixin.qq.com/s/oYQf_m-TvH2txc1AfAvtsA)
 
@@ -2387,6 +2627,8 @@ new Promise((resolve, reject) => reject('rejected'))
 
 ![模块化](../image/language/JS-模块化.jpg)
 
+模块化 = IIFE + 闭包 + 对象
+
 **是什么**
 
 广义上来解释
@@ -2396,7 +2638,9 @@ new Promise((resolve, reject) => reject('rejected'))
 
 **为什么**
 
-模块化存在的意义就是为了**增加可复用性**，以尽可能少的代码是实现个性化的需求
+代码量提升后，多文件直接导入存在命名冲突，污染全局作用域等问题，难以维护
+
+**模块化不光要处理全局变量污染、数据保护的问题，还要很好的解决模块之间依赖关系的维护**
 
 1. 变量都拥有了自己的作用域，而不是直接挂载到全局，有效解决了<u>命名冲突</u>。
 2. 让所有的模块都保持单一职责，显著的提升了<u>开发效率</u>以及代码的<u>可维护性</u>。
@@ -2417,6 +2661,8 @@ new Promise((resolve, reject) => reject('rejected'))
 
 2. 内部模块组织
 
+   > 除 ES Module 外，都是运行时加载；ES Module 为编译时加载
+
    * 原生 JS，借助 IIFE 组织模块，尽量避免污染全局作用域
 
      特点：复杂依赖关系难处理，同步加载易卡顿，命名冲突
@@ -2424,30 +2670,32 @@ new Promise((resolve, reject) => reject('rejected'))
    * **CommonJS** 的模块化方案是JavaScript社区第一次在模块系统上取得的成果
 
      不仅支持依赖管理，而且还支持作用域隔离和模块标识
-
+   
      * 缺少模块封装的能力：一个模块一个文件，浏览器不友好，需要发较多请求
-     * 使用同步的方式加载依赖：可能导致浏览器长时间白屏
-     * 使用一个名为 `export` 的对象来暴露模块
-
+  * 使用同步的方式加载依赖：可能导致浏览器长时间白屏
+     * `module.exports` 保存当前模块要导出的内容；`require` 加载导出值
+     * Node.js 在实现 CommonJS 规范时，为每个模块提供一个 `exports`的私有变量，指向 `module.exports`。直接赋值是无效的。
+     
      > 当时 Node.js 也采用了 `CommonJS` 的模块化规范
      >
      > v13.2 版本开始，Node.js 已经默认打开了 ES6 Module 的支持，但需要：
-     >
-     > 1. 更改 `.js` 为 `.mjs`，并使用 `node index.mjs`
-     > 2. `package.json`添加字段`"type": "module"`，如此所有 `.js` 均被识别为 ES Module
+  >
+  >   > 1. 更改 `.js` 为 `.mjs`，并使用 `node index.mjs`
+  >
+  >2. `package.json`添加字段`"type": "module"`，如此所有 `.js` 均被识别为 ES Module
 
-   * **AMD** 设计规范，异步模块定义 => `define` / `require`
-
-     `define` 能自定义模块而 `require` 不能，`require` 的作用是执行模块加载
-
-     特点：依赖前置，数组形式提前声明；<u>异步加载</u>，避免阻塞；直接返回值
-
-   * **CMD** 设计规范，通用模块定义 => 接受 factory 函数 
-
-     `require` 为动态获取依赖模块，倾向懒加载
-
+* **AMD** 设计规范，异步模块定义 => `define` / `require`
+  
+  `define` 能自定义模块而 `require` 不能，`require` 的作用是执行模块加载
+  
+  特点：依赖前置，数组形式提前声明；<u>异步加载</u>，避免阻塞；直接返回值
+  
+* **CMD** 设计规范，通用模块定义 => 接受 factory 函数 
+  
+  `require` 为动态获取依赖模块，倾向懒加载
+  
      特点：就近调用 `require` 动态引用依赖；异步加载，避免阻塞；`module.exports` 形式返回
-
+  
    * **ES Module** 是 ES 组织官方推出的模块化方案，相比于 CommonJS 和 AMD 方案，ESM采用了<u>完全静态化</u>的方式进行模块的加载，静态化也为后来的打包工具提供了便利，并且能友好的支持 tree shaking
 
 ```javascript
@@ -2486,10 +2734,33 @@ module.exports = {
 
 ![图表对比](../image/language/JS-模块化方案区别.jpg)
 
-* 一个使用 `import/export` 语法，一个使用 `require/module` 语法。
-* ESM 导入模块的变量都是强绑定，导出模块的变量一旦发生变化，对应导入模块的变量也会跟随变化，而 CommonJS 中导入的模块都是值传递与引用传递，类似于函数传参
-* CommonJS 输出是值的拷贝，ES6 Module 输出的是值的引用，被输出模块的内部的改变会影响引用的改变；
-* CommonJS `this`指向当前模块，ES6 Module 默认开启严格模式 `this`指向`undefined`
+* 语法：
+
+  一个使用 `import/export` 语法，一个使用 `require/module.exports` 语法。
+
+* 引入形式：
+
+  CommonJS 输出是值的拷贝，模块内部的变化就影响不到导出值；
+
+  ES6 Module 输出的是值的引用，被输出模块的内部的改变会影响引用的改变；
+
+* 提升：
+
+  ES6 Module 是编译时加载，因此会将 `import` 提升到模块头部
+
+  CommonJS 是运行时加载，没有提升的效果
+
+* 缓存
+
+  ES6 Module 不会做缓存
+
+  CommonJS 引入模块后会做缓存，即第二次引入时依然使用第一次引入时的值，即使值可能已被修改
+
+* `this` 指向：
+
+  ES6 Module 默认开启严格模式 `this`指向`undefined`
+
+  CommonJS `this`指向当前模块
 
 ```javascript
 // a.js
@@ -2565,6 +2836,8 @@ setTimeout(() => {
 
 [JavaScript深入之执行上下文](https://github.com/mqyqingfeng/Blog/issues/8)
 
+> 在进入执行上下文时，首先会处理函数声明，其次会处理变量声明
+
 执行上下文（execution context），是对 JavaScript 代码执行环境的抽象。
 
 它包含变量对象（Variable object，VO），作用域链，this 等。
@@ -2573,6 +2846,34 @@ setTimeout(() => {
 
 * 变量对象就是执行环境中包含了所有变量和函数的对象
 * 活动对象是函数执行的时候被创建的对象
+
+```javascript
+function foo(a) {
+  var b = 2;
+  function c() {}
+  var d = function() {};
+
+  b = 3;
+
+}
+
+foo(1);
+```
+
+```javascript
+AO = {
+    arguments: {
+        0: 1,
+        length: 1
+    },
+    a: 1,
+    b: undefined,
+    c: reference to function c(){},
+    d: undefined
+}
+```
+
+
 
 
 
