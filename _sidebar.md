@@ -23,7 +23,9 @@
 - 操作系统
   - [基础](os/基础.md)
 - 算法
+  - [常见算法](leetcode/常见算法.md)
   - [排序](leetcode/sort.md)
+  - [DFS/BFS](leetcode/深(广)度优先遍历.md)
   - [二叉树](leetcode/tree.md)
 - 项目
   - [PWA](project/PWA.md)

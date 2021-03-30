@@ -356,27 +356,13 @@ console.log(+add(1)(2)(3)); // 6
 
 ```javascript
 function curry(func, ...args) {
-    if(func.length <= args.length) {
+    if (args.length >= func.length) {
         return func.apply(this, args);
     } else {
-        return function (...curryArgs) {
-            return curry(func, ...args, ...curryArgs);
+        return function (...currArgs) {
+            return curry.call(this, func, ...args, ...currArgs);
         }
     }
-}
-```
-
-```javascript
-function curry(func) {
-    return function curried(...args) {
-        if (args.length >= func.length) {
-            return func.apply(this, args);
-        } else {
-            return function (...args2) {
-                return curried.apply(this, args.concat(args2));
-            }
-        }
-    };
 }
 ```
 
@@ -448,29 +434,46 @@ function curry(fn, args, holes) {
 
 ## 五、实际相关
 
+[防抖节流 - Codepen](https://codepen.io/flashhu/pen/jOyMQKm)
+
 ### 1. 防抖
 
 [JavaScript专题之跟着underscore学防抖](https://github.com/mqyqingfeng/Blog/issues/22)
 
 > 事件多次触发，只有当n秒内不再触发才执行，否则重新计时
 >
-> 重在清除定时器
 
 适用场景如：文本编辑器实时保存，调整页面大小
 
+**整体思路**
+
+> 重在清除定时器
+
+* `this` 指向：使用箭头函数或闭包
+* 处理传参
+
 **基础版**
 
-处理 this 指向，event 对象
-
-此处注意：如 setTimeout 内未使用箭头函数，需提前获取 this
+```javascript
+function debounce(func, delay) {
+  let timeout;
+  return function (...args) {
+    const self = this;
+    clearTimeout(timeout);
+    timeout = setTimeout(function (){
+      func.apply(self, args);
+    }, delay);
+  };
+};
+```
 
 ```javascript
-const debounce = (func, delay) => {
+function debounce(func, delay) {
   let timeout;
-  return function () {
+  return function (...args) {
     clearTimeout(timeout);
     timeout = setTimeout(() => {
-      func.apply(this, arguments);
+      func.apply(this, args);
     }, delay);
   };
 };
@@ -478,20 +481,42 @@ const debounce = (func, delay) => {
 
 **进阶版**
 
-增加立即执行
+增加立即执行，即在事件触发后就执行，直到事件停止触发 n 秒后，才会重新触发
+
+且可返回结果（非立即执行时，异步操作，故不处理返回值）
+
+提供取消防抖的操作
 
 ```javascript
-const debounce = (func, delay, immediate) => {
-  let timeout;
-  return function () {
-    if (timeout) clearTimeout(timeout);
-    const callNow = !timeout;
-    timeout = setTimeout(() => {
-      func.apply(this, arguments);
-    }, delay);
-    if (immediate && callNow) func.apply(this, arguments);
-  };
-}
+function debounce(func, delay, immediate){
+  let timeout, result, callNow = true;
+  const debounce = function (...args) {
+    var context = this;
+    clearTimeout(timeout);
+    if (immediate) {
+      timeout = setTimeout(function(){
+        callNow = true;
+      }, delay);
+      if (callNow) {
+        result = func.apply(context, args);
+        callNow = false;
+      }
+    }
+    else {
+      timeout = setTimeout(function(){
+        func.apply(context, args)
+      }, delay);
+    }
+    return result;
+  }
+  
+  debounce.cancel = function() {
+    clearTimeout(timeout);
+    timeout = null;
+  }
+  
+  return debounce;
+};
 ```
 
 
@@ -502,45 +527,122 @@ const debounce = (func, delay, immediate) => {
 
 > 一段时间内只执行一次
 >
-> 重在控制标志位
 
 适用场景如：获取滚动条位置 scroll
+
+**整体思路**
+
+> 重在控制标志位
+
+* 时间戳：
+
+  取当前时间和上次触发时间的间隔，再与延时时间做比较
+
+  有头无尾，每段时间间隔的头会调用
+
+  停止触发后不会再执行
+
+* 定时器：
+
+  不存在定时器则调用，调用后，设置在时间间隔后将定时器置空
+
+  无头有尾，每段时间间隔的尾调用
+
+  停止触发后还会有一次
 
 **基础版**
 
 ```javascript
 // 依靠时间戳 => 有头无尾
-const throttle = (func, delay) => {
+function throttle(func, delay) {
   let previous = 0;
   return function () {
-    const context = this;
-    let now = +new Date();
+    const now = Date.now();
     if (now - previous > delay) {
-      func.apply(context, arguments);
+      func.apply(this, arguments);
       previous = now;
     }
   };
 };
 
 // 依靠定时器 => 无头有尾
-const throttle = (func, delay) => {
-  let tag = false;
-  return function () {
-    if (!tag) {
-      tag = true;
-      setTimeout(() => {
-        func.apply(this, arguments);
-        tag = false;
+function throttle(func, delay) {
+  let timeout = null;
+  return function(...args) {
+    const self = this;
+    if(!timeout) {
+      timeout = setTimeout(function() {
+        func.apply(self, args);
+        timeout = null;
       }, delay);
-        // 移动位置，也可改造为立即执行
-        // func.apply(this, arguments);
     }
-  };
+  }
 };
 ```
 
-1. 第一种事件会立刻执行，第二种事件会在 n 秒后第一次执行
-2. 第一种事件停止触发后没有办法再执行事件，第二种事件停止触发后依然会再执行一次事件
+**进阶版**
+
+* 有头有尾
+
+  两种基础版写法借判断条件结合起来
+
+  首次触发时做 有头无尾操作，时间间隔内第二次触发做 无头有尾操作
+
+* 可控头尾处理方式
+
+  leading：false 表示禁用第一次执行
+  trailing: false 表示禁用停止触发的回调
+
+  注意及时将一些变量置 `null`，便于垃圾回收
+
+* 可取消
+
+```javascript
+function throttle(func, delay, options) {
+  let timeout
+  let self
+  let _args
+  let previous = 0
+
+  options = options || {}
+
+  const later = function () {
+    previous = options.leading ? Date.now() : 0
+    timeout = null
+    func.apply(func, _args)
+    if (!timeout) self = _args = null
+  }
+
+  const throttle = function (...args) {
+    const now = Date.now()
+    if (previous === 0 && !options.leading) previous = now
+    const remaining = delay - (now - previous)
+
+    self = this
+    _args = args
+
+    if (remaining <= 0 || remaining > delay) {
+      if (timeout) {
+        clearTimeout(timeout)
+        timeout = null
+      }
+      previous = now
+      func.apply(self, args)
+      if (!timeout) self = _agrs = null
+    } else if (!timeout && options.trailing) {
+      timeout = setTimeout(later, remaining)
+    }
+  }
+  
+  throttle.cancel = function() {
+    clearTimeout(timeout);
+    timeout = null;
+    previous = 0;
+  }
+ 
+  return throttle;
+};
+```
 
 
 
