@@ -432,7 +432,32 @@ function curry(fn, args, holes) {
 
 
 
-## 五、实际相关
+## 五、数组
+
+### 1. `reduce`
+
+[reduce - MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce)
+
+> 如果没有提供`initialValue`，reduce 会从索引1的地方开始执行 callback 方法，跳过第一个索引。如果提供`initialValue`，从索引0开始。
+
+> 如为对象数组，必须传入初始值
+
+*  **callback** 函数接收4个参数:
+
+1. Accumulator (acc) (累计器)
+2. Current Value (cur) (当前值)
+3. Current Index (idx) (当前索引)
+4. Source Array (src) (源数组)
+
+* **initialValue**
+
+  如没有提供，则使用数组第一个元素
+
+[ployfill](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce#polyfill)
+
+
+
+## 六、实际相关
 
 [防抖节流 - Codepen](https://codepen.io/flashhu/pen/jOyMQKm)
 

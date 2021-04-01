@@ -12,6 +12,8 @@
   - [概念](react/React概念性梳理.md)
   - [原理](react/React工作流程.md)
   - [问题](react/React相关问题.md)
+- 服务端
+  - [Nginx](server/nginx.md)
 - 网络及浏览器
   - [基础](network/基础.md)
   - [HTTP](network/HTTP.md)
