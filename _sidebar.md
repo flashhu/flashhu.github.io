@@ -28,6 +28,9 @@
   - [常见算法](leetcode/常见算法.md)
   - [排序](leetcode/sort.md)
   - [DFS/BFS](leetcode/深(广)度优先遍历.md)
+  - [回溯](leetcode/回溯.md)
+  - [分治](leetcode/分治.md)
+  - [位运算](leetcode/位运算.md)
   - [二叉树](leetcode/tree.md)
 - 项目
   - [PWA](project/PWA.md)
