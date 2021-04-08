@@ -626,7 +626,9 @@ ETag:"xxxxxxx"
 
 > ETag 变，不一定文件内容改变
 
-Nginx 中 ETag 由响应头的`Last-Modified`和`Content-Length`表示为十六进制组合而成
+Nginx 中 ETag 的计算方式为：文件最后修改时间16进制-文件长度16进制
+
+Express 中有两种，一种为 文件长度16进制-文件最后修改时间16进制，一种为 内容长度的十六进制-文件内容的 hash 值
 
 
 

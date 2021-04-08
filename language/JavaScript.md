@@ -983,6 +983,8 @@ for (var i = 0; i < 3; j++) {
 
 [一文搞懂V8引擎的垃圾回收](https://juejin.cn/post/6844904016325902344)
 
+[V8是怎样提升【对象属性】访问速度的？](https://juejin.cn/post/6943420315095531533)
+
 > 默认情况下，V8引擎在`64`位系统下最多只能使用约`1.4GB`的内存，在`32`位系统下最多只能使用约`0.7GB`的内存
 >
 > **V8引擎可用内存不多的原因**：
@@ -2627,6 +2629,8 @@ new Promise((resolve, reject) => reject('rejected'))
 
 [commonJS 和 ES Module 区别](https://zhuanlan.zhihu.com/p/161015809)
 
+[前端的发展](http://webpack.wuhaolin.cn/1%E5%85%A5%E9%97%A8/1-1%E5%89%8D%E7%AB%AF%E7%9A%84%E5%8F%91%E5%B1%95.html)
+
 ![模块化](../image/language/JS-模块化.jpg)
 
 模块化 = IIFE + 闭包 + 对象
@@ -2814,9 +2818,98 @@ setTimeout(() => {
 
 
 
-## 十五、AJAX
+## 十五、异步网络请求
 
 [异步网络请求xhr、ajax、fetch与axios对比](https://juejin.cn/post/6844904058466074637)
+
+[传统 Ajax 已死，Fetch 永生](https://github.com/camsong/blog/issues/2)
+
+
+
+### 1. XMLHttpRequest
+
+[XML HttpRequest — MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/XMLHttpRequest)
+
+**优点：**
+
+- 不重新加载页面的情况下更新网页
+- 在页面已加载后从服务器请求/接收数据
+- 在后台向服务器发送数据。
+
+**缺点：**
+
+- 使用起来也比较繁琐，需要设置很多值。
+- 早期的IE浏览器有自己的实现，这样需要写兼容代码。
+
+```javascript
+var xhr = new XMLHttpRequest();
+xhr.open('GET', url);
+xhr.responseType = 'json';
+
+xhr.onload = function() {
+  console.log(xhr.response);
+};
+
+xhr.onerror = function() {
+  console.log("Oops, error");
+};
+
+xhr.send();
+```
+
+
+
+### 2. AJAX
+
+[AJAX — MDN](https://developer.mozilla.org/zh-CN/docs/Web/Guide/AJAX/Getting_Started)
+
+[面试官：ajax原理是什么？如何实现？](https://github.com/febobo/web-interview/issues/70)
+
+异步的JavaScript和XML，即使用 XMLHttpRequest 和服务器通信
+
+使用JSON，XML，HTML和text文本等格式发送和接收数据
+
+可以在不重新刷新页面的情况下与服务器通信，交换数据，或更新页面
+
+
+
+### 3. fetch
+
+[fetch — MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/Fetch_API)
+
+**优点：**
+
+* 语法简洁，更加语义化
+* 基于标准 Promise 实现，支持 async/await
+* 支持跨域，添加 `mode: 'no-cors'` 即可
+
+**缺点：**
+
+- `fetch`只对网络请求报错，对`400`，`500`都当做成功的请求，需要封装去处理
+- `fetch`默认不会带`cookie`，需要添加配置项。
+- `fetch`不支持`abort`，不支持超时控制，使用`setTimeout`及`Promise.reject`的实现超时控制并不能阻止请求过程继续在后台运行，造成了流量的浪费。
+- `fetch`没有办法原生监测请求的进度，而`XHR`可以。
+
+```javascript
+fetch(url).then(function(response) {
+  return response.json();
+}).then(function(data) {
+  console.log(data);
+}).catch(function(e) {
+  console.log("Oops, error");
+});
+```
+
+```javascript
+try {
+  let response = await fetch(url);
+  let data = await response.json();
+  console.log(data);
+} catch(e) {
+  console.log("Oops, error", e);
+```
+
+
 
 
 
@@ -2876,6 +2969,52 @@ AO = {
 ```
 
 
+
+### 3. 严格模式
+
+[严格模式 - MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Strict_mode)
+
+ES5 引入严格模式，支持渐进式引入。
+
+严格模式对正常的 JavaScript语义做了一些更改。
+
+1. 将问题直接转为错误，消除了一些原有**静默错误**
+2. 简化如何为给定名称的特定变量计算
+3. 简化 eval 和 arguments
+4. 写"安全“JavaScript的步骤变得更简单
+5. 严格模式**禁用了**在ECMAScript的未来版本中可能会定义的一些语法
+
+**示例**
+
+问题转为错误：
+
+* 禁止自动或隐式创建全局变量，会抛出 ReferenceError
+* 如对不可写的属性类型进行修改，不会出现静默失败，而会抛出 TypeError
+* 试图删除不可删除属性，会抛出 TypeError
+* 参数重名，会抛出错误
+* 禁止八进制数字语法，即 `0o` 前缀
+
+简化变量使用
+
+* wth 被完全禁止
+* 不能使用 eval 为上层引入新变量
+* 禁止删除声明变量
+
+简化 eval 和 arguments
+
+* 不能被赋值或绑定到其他语句（类似于保留关键字？）
+* 对参数重新赋值，不会影响 arguments
+* 不再支持 `arguments.callee`
+
+写"安全“JavaScript的步骤变得更简单
+
+* this 的默认绑定，会绑定到 undefined
+* `arguments`不会再提供访问与调用这个函数相关的变量的途径，如 `arguments.caller`
+
+减轻之后版本改变产生的影响
+
+* 将一部分字符变成保留关键字，如 implements`, `interface`, `let`, `package`, `private`, `protected`, `public`, `static`和`yield
+* 只支持在全局或函数中进行函数声明
 
 
 
