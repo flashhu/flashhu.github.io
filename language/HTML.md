@@ -330,23 +330,3 @@ content 的取值为 webkit , ie-comp , ie-stand 之一，区分大小写
 <iframe title="Wiki" src="https://en.wikipedia.org/wiki/Avocado"></iframe>
 
 ```
-
-
-
-## 8. 什么是 DOM
-
-[DOM - MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/Document_Object_Model/Introduction)
-
-[浏览器工作原理与实践 —— 极客时间](https://time.geekbang.org/column/article/140140)
-
-DOM 提供了**对 HTML 文档结构化的表述**。
-
-在渲染引擎中，DOM 有三个层面的作用。
-
-从页面的视角来看，DOM 是生成页面的基础数据结构。
-
-从 JavaScript 脚本视角来看，DOM 提供给 JavaScript 脚本操作的接口，通过这套接口，JavaScript 可以对 DOM 结构进行访问，从而改变文档的结构、样式和内容。
-
-从安全视角来看，DOM 是一道安全防护线，一些不安全的内容在 DOM 解析阶段就被拒之门外了。
-
-简言之，DOM 是表述 HTML 的内部数据结构，它会**将 Web 页面和 JavaScript 脚本连接起来，并过滤一些不安全的内容**。
