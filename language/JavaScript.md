@@ -1587,9 +1587,7 @@ document.getElementById('button').addEventListener("click", function() {
 
 
 
-
-
-### 3. Generator
+### 3. 生成器 Generator
 
 [Generator - MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Generator)
 
@@ -1602,6 +1600,16 @@ document.getElementById('button').addEventListener("click", function() {
 > 生成器函数用 function*声明，使用 yield 返回值。
 >
 > run-pause-run 模式，即生成器函数可以在函数运行中被暂停一次或多次
+>
+> 根据需要多次调用该函数，并且每次都返回一个新的Generator，但每个Generator只能迭代一次
+
+> 生成器是 ES6 的一个新的函数类型，可以在运行时被暂停，并在之后恢复。
+>
+> 交替的暂停和恢复是合作性的而非抢占式。
+>
+> 为异步代码保持了顺序，同步，阻塞的代码模式。
+>
+> —— 《你不知道的 JS 中卷》
 
 ```javascript
 function* gen() {
@@ -1633,10 +1641,10 @@ g.next();
 
 **`for of` 遍历数组元素，`for in` 遍历对象属性**
 
-- for...of循环：具有 iterator 接口， 遍历就可以用for...of循环遍历它的成员(属性值)。for...of循环可以使用的范围包括<u>数组、Set 和 Map 结构、某些类似数组的对象、Generator 对象，以及字符串</u>。for...of循环调用遍历器接口，数组的遍历器接口只返回具有数字索引的属性。对于普通的对象，for...of结构不能直接使用，会报错，必须部署了 Iterator 接口后才能使用。可以中断循环。
-- for...in循环：遍历对象自身的和继承的可枚举的属性, 不能直接获取属性值。可以中断循环。
-- forEach: 只能遍历数组，不能中断，没有返回值(或认为返回值是undefined)。
-- map: 只能遍历数组，不能中断，返回值是修改后的数组
+- for...of循环：具有 iterator 接口， 遍历就可以用for...of循环遍历它的成员(属性值)。for...of循环可以使用的范围包括<u>数组、Set 和 Map 结构、某些类似数组的对象、Generator 对象，以及字符串</u>。for...of循环调用遍历器接口，数组的遍历器接口只返回具有数字索引的属性。对于普通的对象，for...of结构不能直接使用，会报错，必须部署了 Iterator 接口后才能使用。**可以中断循环**。
+- for...in循环：遍历对象自身的和继承的可枚举的属性, 不能直接获取属性值。**可以中断循环**。
+- forEach: **只能遍历数组，不能中断**，没有返回值(或认为返回值是undefined)。
+- map: **只能遍历数组，不能中断**，返回值是修改后的数组
 
 ```javascript
 let arr = [1, 2, 3]
@@ -1657,6 +1665,59 @@ for (let i in obj) {
     console.log(i);
 }
 ```
+
+
+
+### 5. 迭代器 iterator
+
+[迭代器和生成器 — MDN](https://es6.ruanyifeng.com/#docs/iterator)
+
+[ECMAScript 6 入门 — 迭代器](https://es6.ruanyifeng.com/)
+
+> 什么是迭代器？javascript都有哪些迭代器？如何实现一个迭代器？
+
+> 迭代器是一种支持next()操作的**对象**。它包含了一组元素，当执行next()操作时，返回其中一个元素。
+> 当所有元素都被返回后，再执行next()报异常—StopIteration
+> 生成器一定是可迭代的，也一定是迭代器对象
+
+**和生成器的关系**
+
+当执行一生成器函数时，就得到了迭代器
+
+**是什么**
+
+> 迭代器是通过使用 `next()` 方法实现 [Iterator protocol](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#The_iterator_protocol) 的任何一个对象，该方法返回具有两个属性的对象： `value`，这是序列中的 next 值；和 `done` ，如果已经迭代到序列中的最后一个值，则它为 `true` 。如果 `value` 和 `done` 一起存在，则它是迭代器的返回值。
+
+一个对象，它定义一个序列，并在终止时可能返回一个返回值
+
+**作用**
+
+一是为各种数据结构，提供一个统一的、简便的访问接口；
+
+二是使得数据结构的成员能够按某种次序排列；
+
+三是 ES6 创造了一种新的遍历命令`for...of`循环，Iterator 接口主要供`for...of`消费。
+
+**可迭代对象**
+
+若一个对象拥有迭代行为，那么那个对象便是一个可迭代对象
+
+为了实现**可迭代**，一个对象必须实现 **@@iterator** 方法，即带有 [`Symbol.iterator`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Symbol/iterator) 属性
+
+```javascript
+var myIterable = {
+  *[Symbol.iterator]() {
+    yield 1;
+    yield 2;
+    yield 3;
+  }
+}
+
+```
+
+只能迭代**一次**的 Iterables（例如Generators）通常从它们的**@@iterator**方法中返回它**本身**，其中那些可以**多次**迭代的方法必须在每次调用**@@iterator**时返回一个**新的迭代器**。
+
+* [`String`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)、[`Array`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array)、[`TypedArray`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/TypedArray)、[`Map`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Map) 和 [`Set`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Set) 
 
 
 
@@ -2884,11 +2945,53 @@ setTimeout(() => {
 
 ## 十四、追新
 
+> ES2015 对应 ES6，之后每年一版依次增加，如 ES7 指的是 ES2016 
+
+[ES6、ES7、ES8、ES9、ES10新特性一览](https://juejin.cn/post/6844903811622912014)
+
 ### 1. 常用的 ES6 特性
 
 [ES6 标准](https://262.ecma-international.org/6.0/)
 
+- 类  [更多](language/JavaScript?id=_8-class-继承)
 
+- 模块化 [更多](language/JavaScript?id=十三、模块化)
+
+- **箭头函数** [更多](language/JavaScript?id=_2-箭头函数与普通函数区别)
+
+- 函数参数默认值
+
+- 模板字符串
+
+- **解构赋值**
+
+  ```javascript
+  [a, b] = [b, a];
+  const {name,age,city} = student;
+  ```
+
+- **延展操作符**
+
+  ```javascript
+  var arr3 = [...arr1, ...arr2];
+  var mergedObj = { ...obj1, ...obj2 }; // ES2018 支持对象
+  ```
+
+- 对象属性简写 / 表达式
+
+  ```javascript
+  const student = { name, age, city };
+  const key = 'key';
+  const data = { [key]: '1' };
+  ```
+
+- Promise
+
+- **let**，**const**
+
+- **`for of` / `forEach` / ** 
+
+- Map / Set
 
 ### 2. 最近的新特性
 

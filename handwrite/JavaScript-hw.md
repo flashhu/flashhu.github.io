@@ -92,6 +92,25 @@ function myCreate(proto, propertiesObject) {
 };
 ```
 
+
+
+### 4. 如何实现只读对象
+
+> const实际上保证的，并不是变量的值不得改动，而是变量指向的那个内存地址所保存的数据不得改动,
+
+```javascript
+const constantize = (obj) => {
+    Object.freeze(obj);
+    Object.keys(obj).forEach((key, i) => {
+        if (obj[key] && typeof obj[key] === 'object') {
+            constantize(obj[key]);
+        }
+    })
+}
+```
+
+
+
 ## 二、this
 
 ### 1.  `call` ？
@@ -682,3 +701,4 @@ function throttle(func, delay, options) {
 原因：函数组件每次渲染结束之后，内部的变量都会被释放，重新渲染时所有的变量会被**重新初始化**，产生的结果就是每一次都注册和执行了setTimeout函数。
 
 解决办法：利用 `useRef` 或 `useCallback`
+

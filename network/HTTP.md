@@ -269,19 +269,19 @@ HTTP/1.1 里唯一要求必须提供的头字段是 **Host**，它**必须出现
 
 > http 1.1
 
-<img src="../image/network/HTTP通用首部字段.PNG" alt="通用首部字段" style="zoom:80%;" />
+<img src="../image/network/HTTP通用首部字段.png" alt="通用首部字段" style="zoom:80%;" />
 
 **请求首部字段**
 
-<img src="../image/network/HTTP请求首部字段.PNG" alt="请求首部字段" style="zoom:80%;" />
+<img src="../image/network/HTTP请求首部字段.png" alt="请求首部字段" style="zoom:80%;" />
 
 **响应首部字段**
 
-<img src="../image/network/HTTP响应首部字段.PNG" alt="响应首部字段" style="zoom:80%;" />
+<img src="../image/network/HTTP响应首部字段.png" alt="响应首部字段" style="zoom:80%;" />
 
 **实体首部字段**：请求和响应里都可以用
 
-<img src="../image/network/HTTP实体首部字段.PNG" alt="实体首部字段" style="zoom:80%;" />
+<img src="../image/network/HTTP实体首部字段.png" alt="实体首部字段" style="zoom:80%;" />
 
 
 
