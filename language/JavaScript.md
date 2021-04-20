@@ -1,5 +1,3 @@
-> 
->
 > 知识是有关联的 ：）
 
 > 《你不知道的 JS》
@@ -517,6 +515,10 @@ console.log(String(101351135999999999999999991n)) // "10135113599999999999999999
 
 >  装箱操作，把基本类型转换为对应的对象
 
+> `null` 及 `undefined` 转为 `object`，对照标准（直到 ES10 中的 [ToObject](https://262.ecma-international.org/10.0/#sec-toobject)）写的都是抛出`TypeError`
+>
+> 但在浏览器的控制台和 `node` 中测试时， `Object(null)`，`Object(undefined)` 均会返回 `{}`
+
 `null`，`undefined` 类型不能转换为字符，会抛出`TypeError`
 
 原始值调用 String()、Number() 或者 Boolean() 构造函数即可
@@ -713,8 +715,9 @@ console.log(null != 0)
 [标准内置对象分类 - MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects#%E6%A0%87%E5%87%86%E5%86%85%E7%BD%AE%E5%AF%B9%E8%B1%A1%E5%88%86%E7%B1%BB)
 
 * String
-
 * Number
+  * Math 内置对象用于 Number 类型，不支持 BigInt
+  * `Math.round` 四舍五入，`Math.ceil` 向上取整，`Math.floor` 向下取整
 
 * Boolean
 
@@ -1509,6 +1512,8 @@ Proxy
 
 Object.defineProperty
 
+> 属性描述符未指定，默认情况下，除 `value` 为 `undefined`，其他均为 `false`
+
 - 代理的是**属性**
 - 对数组数据的变化无能为力
 - 只能重定义属性的读取（get）和设置（set）行为
@@ -1718,6 +1723,34 @@ var myIterable = {
 只能迭代**一次**的 Iterables（例如Generators）通常从它们的**@@iterator**方法中返回它**本身**，其中那些可以**多次**迭代的方法必须在每次调用**@@iterator**时返回一个**新的迭代器**。
 
 * [`String`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)、[`Array`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array)、[`TypedArray`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/TypedArray)、[`Map`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Map) 和 [`Set`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Set) 
+
+
+
+### 6. for in，Object.keys，Object.getOwnPropertyNames 区别
+
+[详解forin，Object.keys和Object.getOwnPropertyNames的区别](https://yanhaijing.com/javascript/2015/05/09/diff-between-keys-getOwnPropertyNames-forin/)
+
+**相同点**
+
+用于遍历对象
+
+**不同点**
+
+* `for in` 为 ES3 就有，后两者为 ES5
+
+* `for in` 遍历自身及原型链上的可枚举属性。借助 `obj.hasOwnProperty(key)` 仅输出自身属性；
+
+  `Object.keys` 获取对象自身可枚举属性；
+
+  `Object.getOwnPropertyNames` 获得对象自身的全部属性（枚举及非枚举）
+
+
+
+### 7. `in` 和 `obj.hasOwnProperty` 区别
+
+1、`in` 操作符会检查属性是否在对象及其 `[[Prototype]]` 原型链中。
+
+2、`hasOwnProperty(..)` 只会检查属性是否在 `myObject` 对象中，不会检查 `[[Prototype]]` 原型链。
 
 
 
@@ -2481,14 +2514,26 @@ i;//ReferenceError: i is not defined (it only exists inside the closure)
 
 
 
+### 3. 柯里化和偏函数的区别
+
+> 直到练习手写的时候，才发现这部分的理解存在偏差 orz
+
+[柯里化和偏函数有什么区别？](https://segmentfault.com/q/1010000008626058#)
+
+* 柯里化，把一个有 n 个参数的函数变成 n 个只有 **1 个参数**的函数
+
+* 偏函数，固定某几个参数，可接受**剩余参数**的函数
+
+
+
 ## 十、深浅拷贝
 
 [第 4 期：深浅拷贝原理](https://github.com/yygmind/blog#%E7%AC%AC-4-%E6%9C%9F%E6%B7%B1%E6%B5%85%E6%8B%B7%E8%B4%9D%E5%8E%9F%E7%90%86)
 
 ### 1. 深浅拷贝区别
 
-* 深拷贝会拷贝所有的属性，并拷贝属性指向的动态分配的内存。当对象和它所引用的对象一起拷贝时即发生深拷贝。深拷贝相比于浅拷贝速度较慢并且花销较大。拷贝前后两个对象互不影响。
-* 浅拷贝会创建一个新对象，这个对象有着原始对象属性值的一份精确拷贝。如果属性是基本类型，拷贝的就是基本类型的值，如果属性是引用类型，拷贝的就是内存地址 ，所以如果其中一个对象改变了这个地址，就会影响到另一个对象。
+* 深拷贝会拷贝所有的属性，并拷贝属性指向的动态分配的内存。当**对象和它所引用的对象一起拷贝**时即发生深拷贝。深拷贝相比于浅拷贝速度较慢并且花销较大。拷贝前后两个对象互不影响。
+* 浅拷贝会创建一个新对象，这个对象有着原始对象属性值的一份精确拷贝。如果属性是基本类型，拷贝的就是基本类型的值，如果属性是引用类型，拷贝的就是内存地址 ，所以如果其中一个对象改变了这个地址，就会影响到另一个对象。**拷贝第一层的基本类型值，以及第一层的引用类型地址**
 
 | --     | 和原数据是否指向同一对象 | 第一层数据为基本数据类型     | 原数据中包含子对象           |
 | ------ | ------------------------ | ---------------------------- | ---------------------------- |
@@ -3092,8 +3137,6 @@ try {
 
 
 
-
-
 ## 十六、一些定义
 
 ### 1. 为什么是解释型语言
@@ -3267,3 +3310,9 @@ let b = 1
 - 剩余参数只包含那些没有对应形参的实参，而 `arguments` 对象包含了传给函数的所有实参。
 - `arguments`对象不是一个真正的数组，而剩余参数是真正的 `Array`实例，也就是说你能够在它上面直接使用所有的数组方法，比如 `sort`，`map`，`forEach`或`pop`。
 - `arguments`对象还有一些附加的属性 （如`callee`属性）。
+
+
+
+### 5. 正则
+
+[JS正则表达式完整教程（略长）](https://juejin.cn/post/6844903487155732494)
