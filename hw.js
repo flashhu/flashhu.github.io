@@ -803,3 +803,22 @@ arr2[0].push(3);
 console.log(arr1, arr2);
 console.log(arr1[0][2] === arr1[2], arr2[0][2] === arr2[2], arr1[0][2] === arr2[0][2]);
 console.log(arr1[3] === arr2[3]);
+
+// 0424 —— [特定格式取对象属性]
+// 编写函数获得对象中的值666，必须使用到 str = 'a.b.c';
+console.log('------------ 特定格式取对象属性! ------------');
+const getData1 = function(str, obj) {
+    return str.split('.').reduce((res, currKey) => {
+        return res[currKey]
+    }, obj);
+}
+
+const inputObj = {
+    a: {
+        b: {
+            c: 666
+        }
+    }
+}
+
+console.log(getData1('a.b.c', inputObj));

@@ -173,11 +173,15 @@ const constantize = (obj) => {
 
 
 
-### 5. Object.assign
+### 5. Object.assign ？
 
 [Object.assign](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/assign)
 
 [【进阶4-2期】Object.assign 原理及其实现](https://github.com/yygmind/blog/issues/26)
+
+> `Object(null)` 或 `Object(undefined)` 在实际测试时会返回 `{}`
+>
+> 但在标准中，一直到 ES10 中的 [ToObject](https://262.ecma-international.org/10.0/#table-13) 对于 `null`，`undefined` 都是返回 `TypeError` ?
 
 第一个参数为目标对象，第二个及以后参数为源对象
 
@@ -1400,6 +1404,40 @@ const request = function(method, url, async = false, body = null) {
         }
         xhr.send(body);
     })
+}
+```
+
+```javascript
+function ajax(options) {
+    //创建XMLHttpRequest对象
+    const xhr = new XMLHttpRequest()
+
+
+    //初始化参数的内容
+    options = options || {}
+    options.type = (options.type || 'GET').toUpperCase()
+    options.dataType = options.dataType || 'json'
+    const params = options.data
+
+    //发送请求
+    if (options.type === 'GET') {
+        xhr.open('GET', options.url + '?' + params, true)
+        xhr.send(null)
+    } else if (options.type === 'POST') {
+        xhr.open('POST', options.url, true)
+        xhr.send(params)
+
+    //接收请求
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            let status = xhr.status
+            if (status >= 200 && status < 300) {
+                options.success && options.success(xhr.responseText, xhr.responseXML)
+            } else {
+                options.fail && options.fail(status)
+            }
+        }
+    }
 }
 ```
 

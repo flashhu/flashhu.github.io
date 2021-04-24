@@ -43,13 +43,17 @@ PWA 能将两者的优点结合在一起。首要目的还是提升用户体验
 
 **怎么做**
 
-引入 Service Worker 来解决离线存储，消息推送的问题
-
 引入 manifest.json 来解决一级入口的问题
+
+引入 Service Worker 来解决离线存储的问题
+
+基于  Service Worker 的 Notification API 和  PushAPI 提供消息推送的能力
 
 
 
 ## 2. ServiceWoker
+
+> 引申 [Service Worker 和 Web Worker 的区别](http://localhost:3000/#/browser/基础?id=service-worker-和-web-worker-的区别-？)
 
 > 在没有安装 Service Worker 之前，WebApp 都是直接通过网络模块来请求资源的。
 >

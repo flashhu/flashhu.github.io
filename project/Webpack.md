@@ -156,6 +156,8 @@ HappyPack 把任务分解给多个子进程去并发的执行，子进程处理�
 
 ### 使用 Tree Shaking
 
+[Tree Shaking 原理](https://zhuanlan.zhihu.com/p/32554436)
+
 Tree Shaking 可以用来剔除 JavaScript 中用不上的死代码。
 
 它依赖静态的 **ES6 模块化**语法，例如通过 `import` 和 `export` 导入导出

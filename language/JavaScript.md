@@ -753,6 +753,8 @@ console.log(null != 0)
 
 > 即，原始值、引用值的区别
 
+> JavaScript 引擎需要用栈来维护程序执行期间上下文的状态，如果栈空间大了话，所有的数据都存放在栈空间里面，那么会影响到上下文切换的效率，进而又影响到整个程序的执行效率
+
 * 在 JavaScript 的执行过程中， 主要有三种类型内存空间，分别是代码空间（存储可执行代码的）、栈空间和堆空间
 
 * 基本数据类型值占据固定大小，保存在**栈**中。
@@ -2584,6 +2586,8 @@ var new_data = JSON.parse(JSON.stringify(data));
 [Javascript异步编程的4种方法](https://www.ruanyifeng.com/blog/2012/12/asynchronous%EF%BC%BFjavascript.html)
 
 [JS 异步编程：种类和原理](https://hytonightyx.github.io/fedoc/03-JavaScript/%E5%BC%82%E6%AD%A5%E7%BC%96%E7%A8%8B%E4%B8%93%E9%A2%98.html)
+
+[js 处理异步操作的几种方式](https://segmentfault.com/a/1190000018670042)
 
 ES6 诞生以前，异步编程的方法，大概有下面四种。
 

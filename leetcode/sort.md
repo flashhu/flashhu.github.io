@@ -135,5 +135,108 @@ console.log(nums);
 
 
 
+### 6. 堆排序
 
+[前端进阶算法9：看完这篇，再也不怕堆排序、Top K、中位数问题面试了](https://github.com/sisterAn/JavaScript-Algorithms/issues/60)
+
+**前置知识**
+
+> 建堆，调整，删除
+
+堆其实可以用一个数组表示，给定一个节点的下标 `i` （i从1开始） ，那么它的父节点一定为 `A[i/2]` ，左子节点为 `A[2i]` ，右子节点为 `A[2i+1]`
+
+* 插入式建堆
+* 原地建堆
+  * 自下而上式：节点和父节点比
+  * 自上而下式：节点和左右子节点比
+
+**基本思想**
+
+* 无序序列建堆
+
+* 取堆顶元素（当前元素中的最大 / 小值）
+
+* 除堆顶元素外，重新调整堆结构
+
+  通常为堆顶和末尾元素换位置，缩小规模大小，重新建堆
+
+* 重复执行，即可得到一有序序列
+
+目标为升序，构建大根堆
+
+目标为降序，构建小根堆
+
+```javascript
+function heapSort(items) {
+    // 构建大顶堆
+    buildHeap(items, items.length - 1)
+    // 设置堆的初始有效序列长度为 items.length - 1
+    let heapSize = items.length - 1
+    for (var i = items.length - 1; i > 1; i--) {
+        // 交换堆顶元素与最后一个有效子元素
+        swap(items, 1, i);
+        // 有效序列长度减 1
+        heapSize--;
+        // 堆化有效序列(有效序列长度为 currentHeapSize，抛除了最后一个元素)
+        heapify(items, heapSize, 1);
+    }
+    return items;
+}
+
+// 原地建堆
+// items: 原始序列
+// heapSize: 有效序列长度
+function buildHeap(items, heapSize) {
+    // 从最后一个非叶子节点开始，自上而下式堆化
+    for (let i = Math.floor(heapSize / 2); i >= 1; --i) {
+        heapify(items, heapSize, i);
+    }
+}
+function heapify(items, heapSize, i) {
+    // 自上而下式堆化
+    while (true) {
+        var maxIndex = i;
+        if (2 * i <= heapSize && items[i] < items[i * 2]) {
+            maxIndex = i * 2;
+        }
+        if (2 * i + 1 <= heapSize && items[maxIndex] < items[i * 2 + 1]) {
+            maxIndex = i * 2 + 1;
+        }
+        if (maxIndex === i) break;
+        swap(items, i, maxIndex); // 交换 
+        i = maxIndex;
+    }
+}
+function swap(items, i, j) {
+    let temp = items[i]
+    items[i] = items[j]
+    items[j] = temp
+}
+
+var items = [, 1, 9, 2, 8, 3, 7, 4, 6, 5]
+console.log(heapSort(items))
+```
+
+```javascript
+// 自前往后，自下往上建堆
+function buildHeap(items, heapSize) {
+    while(heapSize < items.length - 1) {
+        heapSize ++
+        heapify(items, heapSize)
+    }
+}
+
+function heapify(items, i) {
+    while (Math.floor(i/2) > 0 && items[i] < items[Math.floor(i/2)]) {  
+        swap(items, i, Math.floor(i/2));
+        i = Math.floor(i/2); 
+    }
+}  
+
+function swap(items, i, j) {
+    let temp = items[i]
+    items[i] = items[j]
+    items[j] = temp
+}
+```
 

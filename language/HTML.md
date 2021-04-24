@@ -102,6 +102,10 @@ Chrome：先使用 `webkit` 引擎后使用 `Blink`(基于`webkit`，Google与Op
 
 [全局属性 - MDN](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Global_attributes)
 
+> 扩展：React-dnd 中关于拖拽的[相关代码](https://github.com/react-dnd/react-dnd/blob/e8bd6436548d96f6d6594f763752f424c2e0834b/packages/backend-html5/src/HTML5BackendImpl.ts#L149)
+>
+> [拖拽 — MDN](https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API)
+
 * `class`:为元素设置类标识
 * `data-*`: 为元素增加自定义属性
 * `draggable`: 设置元素是否可拖拽

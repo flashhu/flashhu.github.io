@@ -738,3 +738,12 @@ Grid 布局将容器分为行和列，产生单元格
 * CSS 压缩  / 使用精灵图
 * 少用通配符，少用元素选择器结尾
 * 减少 CSS 嵌套
+
+
+
+## 九、扩展
+
+### 1. 原生 JS 设置 class
+
+[js中设置元素class，添加元素class的方法](https://www.jianshu.com/p/12a013c5b4fb)
+
