@@ -4,6 +4,8 @@
 
 [死磕 36 个 JS 手写题（搞懂后，提升真的大）](https://juejin.cn/post/6946022649768181774)
 
+[32个手写JS，巩固你的JS基础（面试高频）](https://juejin.cn/post/6875152247714480136)
+
 
 
 ## 一、对象
@@ -212,6 +214,39 @@ Object.defineProperty(Object, "myAssign", {
             }
         }
         return res;
+    },
+    writable: true,
+    configurable: true
+})
+```
+
+
+
+### 6. Object.is
+
+[Object.is — MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/is)
+
+[`Object.is` 与 `==`，`===` 区别](/language/JavaScript?id=_15-objectis-与-，-区别)
+
+`Object.is(value1, value2)` 比较两个值是否为同个值
+
+主要解决：
+
+```
++0 === -0  // true
+NaN === NaN // false
+```
+
+```javascript
+Object.defineProperty(Object, 'myIs', {
+    value: function (x, y) {
+        if (x === y) {
+            // 处理 +0, -0 
+            return x !== 0  || 1 / x === 1 / y;
+        } else {
+            // 处理 NaN, NaN
+            return x !== x && y !== y;
+        }
     },
     writable: true,
     configurable: true
@@ -505,6 +540,39 @@ Object.defineProperty(Function.prototype, 'myBind', {
 
 polyfill：根据 `this` 取到数组，当入参为两个时，第二个入参作为初始值，否则将数组的首个非空元素作为初始值，再进行迭代，依次触发回调，更新累计器
 
+```javascript
+Object.defineProperty(Array.prototype, 'myReduce', {
+    value: function (callback) {
+        if(this == null) {
+            throw new TypeError('Array.prototype.reduce called on null or undefined');
+        } 
+        if(typeof callback !== 'function') {
+            throw new TypeError(`${callback} is not a function`);
+        }
+        const o = Object(this);
+        const len = o.length >>> 0;
+        let currIndex = 0, accumulator = null;
+        if(arguments.length >= 2) {
+            accumulator = arguments[1];
+        } else {
+            while (currIndex < len && !(currIndex in o)) {
+                currIndex ++;
+            }
+            accumulator = o[currIndex ++];
+        }
+        while (currIndex < len) {
+            if (currIndex in o) {
+                accumulator = callback(accumulator, o[currIndex], currIndex, o);
+            }
+            currIndex ++;
+        }
+        return accumulator;
+    },
+    writable: true,
+    configurable: true
+})
+```
+
 
 
 ### 2. `forEach`
@@ -523,6 +591,31 @@ polyfill：根据 `this` 取到数组，当入参为两个时，第二个入参�
 
 polyfill：根据 `this` 取到数组，再进行迭代，依次触发回调（如传入第二个参数，需要再调整指向）
 
+```javascript
+Object.defineProperty(Array.prototype, 'myForEach', {
+    value: function (callback, thisArgs) {
+        if(this == null) {
+            throw new TypeError('this is null or undefined');
+        }
+        if(typeof callback !== 'function') {
+            throw new TypeError(`${constructor} is not a function`);
+        }
+        const obj = Object(this);
+        const len = obj.length >>> 0;
+        const context = thisArgs ? thisArgs: this;
+        let currIndex = 0;
+        while (currIndex < len) {
+            if(currIndex in obj) {
+                callback.call(context, obj[currIndex], currIndex, obj);
+            }
+            currIndex ++;
+        }
+    },
+    writable: true,
+    configurable: true
+})
+```
+
 
 
 ### 3.  `map`
@@ -533,6 +626,33 @@ polyfill：根据 `this` 取到数组，再进行迭代，依次触发回调（�
 
 polyfill：和 `forEach` 差不多，多了一个数组保存每次回调函数的返回值
 
+```javascript
+Object.defineProperty(Array.prototype, 'myMap', {
+    value: function (callback, thisArgs) {
+        if(this == null) {
+            throw new TypeError('this is null or undefined');
+        }
+        if(typeof callback !== 'function') {
+            throw new TypeError(`${callback} is not a function`);
+        }
+        const obj = Object(this);
+        const len = obj.length >>> 0;
+        const context = thisArgs ? thisArgs: this;
+        let currIndex = 0;
+        let res = [];
+        while (currIndex < len) {
+            if(currIndex in obj) {
+                res.push(callback.call(context, obj[currIndex], currIndex, obj));
+            }
+            currIndex ++;
+        }
+        return res;
+    },
+    writable: true,
+    configurable: true
+})
+```
+
 
 
 ### 4. filter
@@ -542,6 +662,35 @@ polyfill：和 `forEach` 差不多，多了一个数组保存每次回调函数�
 参数和 `forEach` 差不多，回调函数返回 `true`，`false` 决定元素留不留
 
 polyfill：和 `forEach` 差不多，在遍历时，根据回调函数的返回值，决定当前元素是否要被保留
+
+```true
+Object.defineProperty(Array.prototype, 'myFilter', {
+    value: function (callback, thisArgs) {
+        if(this == null) {
+            throw new TypeError('this is null or undefined');
+        }
+        if(typeof constructor !== 'function') {
+            throw new TypeError(`${constructor} is not a function`);
+        }
+        const obj = Object(this);
+        const len = obj.length;
+        const context = thisArgs ? thisArgs: this;
+        let currIndex = 0;
+        let res = [];
+        while(currIndex < len) {
+            if(currIndex in obj) {
+                if (callback.call(context, obj[currIndex], currIndex, obj)) {
+                    res.push(obj[currIndex]);
+                }
+            }
+            currIndex ++;
+        }
+        return res;
+    },
+    writable: true,
+    configurable: true
+})
+```
 
 
 
@@ -559,6 +708,8 @@ polyfill：和 `filter` 差不多，将保存值的部分，改回返回 `true` 
 
 ### 6. 数组去重
 
+> [Array.from — MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/from)：将伪数组对象或可迭代对象，转换为数组（浅拷贝）
+
 去重基本数据类型
 
 1. 利用 `Set` 的特点
@@ -571,6 +722,7 @@ polyfill：和 `filter` 差不多，将保存值的部分，改回返回 `true` 
 
 ```javascript
 function uniqueArray1 (target) {
+    // return Array.from(new Set(target));
     return [...new Set(target)];
 }
 
@@ -628,6 +780,17 @@ function flatDeep(arr, d = 1) {
     }
 };
 ```
+
+
+
+### 8. 类数组转为数组
+
+> 常见的有 arguments, DOM 操作返回的结果
+
+* `Array.from(target)`
+* `[... target]`
+* `Array.prototype.slice.call(target)`
+* `Array.prototype.concat.apply([], target)`
 
 
 
@@ -1036,6 +1199,20 @@ console.log(add(1)); // Function
 console.log(+add(1)); // 1
 console.log(+add(1)(2)); // 3
 console.log(+add(1)(2)(3)); // 6
+```
+
+```javascript
+function add() {
+    const _args = [...arguments];
+    function fn() {
+        _args.push(...arguments);
+        return fn;
+    }
+    fn.toString = function () {
+        return _args.reduce((sum, cur) => sum + cur);
+    }
+    return fn;
+}
 ```
 
 **定长简易**
@@ -1620,6 +1797,20 @@ function buildTree(input) {
         return output;
     }
     return transfer(sortedInput, 0);
+}
+```
+
+### 5. 模板引擎
+
+```javascript
+function render(template, data) {
+    const reg = /\{\{(\w+)\}\}/; // 模板字符串正则
+    if (reg.test(template)) { // 判断模板里是否有模板字符串
+        const name = reg.exec(template)[1]; // 查找当前模板里第一个模板字符串的字段
+        template = template.replace(reg, data[name]); // 将第一个模板字符串渲染
+        return render(template, data); // 递归的渲染并返回渲染后的结构
+    }
+    return template; // 如果模板没有模板字符串直接返回
 }
 ```
 

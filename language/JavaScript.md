@@ -710,7 +710,39 @@ console.log(null != 0)
 
 
 
-### 15. 引用类型有哪些
+### 15 `Object.is` 与 `==`，`===` 区别
+
+[Object.is —— MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/is)
+
+与 `==` 的区别在于：不会进行类型转换
+
+与 `===` 的区别在于：只比较是否完全相同（更符合思维惯性）
+
+- 都是 [`undefined`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/undefined)
+- 都是 [`null`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/null)
+- 都是 `true` 或 `false`
+- 都是相同长度的字符串且相同字符按相同顺序排列
+- 都是相同对象（意味着每个对象有同一个引用）
+- 都是数字且
+  - 都是 `+0`
+  - 都是 `-0`
+  - 都是 [`NaN`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/NaN)
+  - 或都是非零而且非 [`NaN`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/NaN) 且为同一个值
+
+```javascript
+console.log(Object.is(NaN, NaN), NaN === NaN);
+console.log(Object.is(+0, -0), +0 === -0);
+console.log(Object.is([], ![]), [] == ![]);
+console.log(Object.is("", false), "" == false);
+// true false
+// false true
+// false true
+// false true
+```
+
+
+
+### 16. 引用类型有哪些
 
 [标准内置对象分类 - MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects#%E6%A0%87%E5%87%86%E5%86%85%E7%BD%AE%E5%AF%B9%E8%B1%A1%E5%88%86%E7%B1%BB)
 
@@ -747,7 +779,7 @@ console.log(null != 0)
 
 
 
-### 16. 基本数据类型和复杂数据类型存储上的区别
+### 17. 基本数据类型和复杂数据类型存储上的区别
 
 [栈空间和堆空间：数据是如何存储的？](https://time.geekbang.org/column/article/129596)
 
@@ -781,7 +813,7 @@ console.log(null != 0)
 
 
 
-### 17. `str.charAt(index)` 和 `str[index]` 的区别
+### 18. `str.charAt(index)` 和 `str[index]` 的区别
 
 * 当 index 的取值不在 str 的长度范围内时
 

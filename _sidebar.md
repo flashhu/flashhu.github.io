@@ -17,6 +17,7 @@
   - [状态管理](react/状态管理.md)
 - 服务端
   - [Nginx](server/nginx.md)
+  - [Node](server/Node.md)
 - 网络及浏览器
   - [网络基础](network/基础.md)
   - [浏览器基础](browser/基础.md)
@@ -50,3 +51,4 @@
   - [监控系统](project/监控.md)
 - 扩展
   - [具体场景](project/引申.md)
+  - [智力题](fun/智力题.md)

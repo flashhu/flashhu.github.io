@@ -340,3 +340,23 @@ content 的取值为 webkit , ie-comp , ie-stand 之一，区分大小写
 <iframe title="Wiki" src="https://en.wikipedia.org/wiki/Avocado"></iframe>
 
 ```
+
+
+
+## 8. 获取某些 DOM
+
+* 直接取
+  * `getElementById`
+  * `getElementsByTagName`
+  * `getElementsByClassName`
+* 子节点
+  * `childNodes`：包含空格，换行
+  * `children`
+  * `firstChild` / `lastChild`：包含空格，换行
+  * `firstElementChild` / `lastElementChild`
+* 父节点
+  * `parentElement` / `parentNode`
+  * `offsetParent`
+* 兄弟节点
+  * `previousSibling` / `nextSibling`：包含空格，换行
+  * `previousElementSibling` / `nextElementSibling`
