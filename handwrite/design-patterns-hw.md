@@ -18,6 +18,10 @@
 
   发布订阅模式大多时候为<u>异步</u>
 
+![发布订阅模式](../image/foundation/发布订阅模式.jpg)
+
+![观察者模式](../image/foundation/观察者模式.jpg)
+
 
 
 ## 1. 观察者模式
@@ -109,4 +113,59 @@ class EventEmitter {
 }
 ```
 
-、
+
+
+
+
+## 3. 单例模式
+
+[JavaScript 设计模式核⼼原理与应⽤实践 - 单例模式](https://juejin.cn/book/6844733790204461070/section/6844733790267375630)
+
+> 实现Storage，使得该对象为单例，基于 localStorage 进行封装。实现方法 `setItem(key,value)` 和 ` getItem(key)`。
+
+静态方法版
+
+```javascript
+class Storage {
+    static getInstance() {
+        // 判断是否已经new过1个实例
+        if (!Storage.instance) {
+            // 若这个唯一的实例不存在，那么先创建它
+            Storage.instance = new Storage()
+        }
+        // 如果这个唯一的实例已经存在，则直接返回
+        return Storage.instance
+    }
+    getItem (key) {
+        return localStorage.getItem(key)
+    }
+    setItem (key, value) {
+        return localStorage.setItem(key, value)
+    }
+}
+```
+
+闭包版
+
+```javascript
+// StorageBase ...
+
+// 以闭包的形式创建一个引用自由变量的构造函数
+const Storage = (function(){
+    let instance = null
+    return function(){
+        // 判断自由变量是否为null
+        if(!instance) {
+            // 如果为null则new出唯一实例
+            instance = new StorageBase()
+        }
+        return instance
+    }
+})()
+
+// ...
+```
+
+
+
+> 全局模态框

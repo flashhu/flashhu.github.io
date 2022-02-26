@@ -3,6 +3,8 @@
   - [HTML](language/HTML.md)
   - [CSS](language/CSS.md)
   - [JavaScript](language/JavaScript.md)
+  - [TypeScript](language/TypeScript.md)
+  - [设计模式](foundation/设计模式.md)
 - 深入
   - [JavaScript](handwrite/JavaScript-hw.md)
   - [Promise](handwrite/promise.md)
@@ -50,5 +52,6 @@
   - [性能优化](project/性能优化.md)
   - [监控系统](project/监控.md)
 - 扩展
+  - [架构](project/架构.md)
   - [具体场景](project/引申.md)
   - [智力题](fun/智力题.md)

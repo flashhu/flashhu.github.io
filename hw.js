@@ -1054,3 +1054,34 @@ function jsonp(url, params, cbName) {
         document.body.appendChild(script)
     })
 }
+
+// [单例模式]
+console.log('------------ 单例模式! ------------');
+class Storage {
+    data = new Map();
+
+    static getInstance() {
+        if (!Storage.instance) {
+            Storage.instance = new Storage();
+        }
+        return Storage.instance;
+    }
+
+    getItem(key) {
+        // return localStorage.getItem(key);
+        return this.data.get(key);
+    }
+
+    setItem(key, value) {
+        // return localStorage.setItem(key, value);
+        return this.data.set(key, value);
+    }
+}
+
+const storage1 = Storage.getInstance();
+const storage2 = Storage.getInstance();
+
+storage1.setItem('name', 'lily');
+console.log(storage1.getItem('name'));
+console.log(storage2.getItem('name'));
+console.log(storage1 === storage2)
