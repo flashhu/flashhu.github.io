@@ -360,3 +360,48 @@ content 的取值为 webkit , ie-comp , ie-stand 之一，区分大小写
 * 兄弟节点
   * `previousSibling` / `nextSibling`：包含空格，换行
   * `previousElementSibling` / `nextElementSibling`
+
+
+
+## 9. WebComponent
+
+> [Web Components - MDN](https://developer.mozilla.org/zh-CN/docs/Web/Web_Components)
+>
+> [caniuse](https://caniuse.com/?search=Web%20Components)
+
+**是什么**
+
+一套规则、一套API
+
+可以通过这些API封装自定义的可重用的组件
+
+隐藏标记结构、样式和行为，与页面上的其他代码相隔离
+
+**为什么**
+
+支持原生 JS 开发自定义组件，复用代码
+
+**怎么做**
+
+> `customElements.define('popup-info', PopUpInfo);`
+
+- **Custom elements（自定义元素）：**
+
+  - 类
+  - 自定义元素的名称，必须包含短横线（-）
+  - 必须写一对开闭标记
+  - 适用于简单的组件
+
+- **Shadow DOM（影子DOM）**：
+
+  - 将封装的“影子”DOM树附加到元素（与主文档DOM分开呈现）并控制其关联
+  - 将一个隐藏的、独立的 DOM 附加到一个元素上
+  -  [`Element.attachShadow()`](https://developer.mozilla.org/zh-CN/docs/Web/API/Element/attachShadow) 方法来将一个 shadow root 附加到其他元素上（浏览器自带了一些Shadow DOM组件，一些元素上不可使用 `shadow`，如 `img`，已经有主），可在传入的参数中指定是否支持 JS 外部访问
+
+  ![shadow-dom](../image/miniprogram/shadow-dom.png)
+
+- **HTML templates（HTML模板）：**
+
+  - 把样式写在组件中，不会影响外部的全局样式
+  - shadow DOM中的结构与外界隔离的，和 slot 的内容同级
+

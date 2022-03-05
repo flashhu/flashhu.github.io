@@ -17,6 +17,7 @@
   - [问题](react/React相关问题.md)
   - [基础梳理](react/React.md)
   - [状态管理](react/状态管理.md)
+- [小程序](miniprogram/小程序原理.md)
 - 服务端
   - [Nginx](server/nginx.md)
   - [Node](server/Node.md)
